@@ -269,10 +269,10 @@
 
       <div class="track-box">
         <h3>🔎 내 신청 조회</h3>
-        <p><b>사번</b>과 신청할 때 받은 <b>신청번호</b>를 입력하면 진행 현황·대기번호·반려사유를 확인할 수 있습니다.</p>
+        <p><b>사번</b>과 신청 시 입력한 <b>휴대폰 뒷 4자리</b>를 입력하면 진행 현황·대기번호·반려사유를 확인할 수 있습니다.</p>
         <div class="track-row">
-          <input id="tk-emp" placeholder="사번" style="max-width:130px">
-          <input id="tk-ref" placeholder="신청번호 (예: H20260708-1234)">
+          <input id="tk-emp" placeholder="사번 (예: O2410003)">
+          <input id="tk-ph" placeholder="휴대폰 뒷 4자리" maxlength="4" inputmode="numeric" style="max-width:150px">
           <button type="button" class="apply-btn" id="tk-btn">조회</button>
         </div>
         <div id="tk-result"></div>
@@ -458,24 +458,23 @@ document.getElementById('applyForm').addEventListener('submit',(e)=>{
   btn.disabled=true; msg.className='apply-msg'; msg.textContent='제출 중…';
   const done=()=>{
     msg.className='apply-msg ok';
-    msg.innerHTML='✅ 신청이 접수되었습니다. 아래 신청번호로 진행상황을 조회하세요.<br><span class="ref-badge">신청번호 '+ref+'</span>';
-    e.target.reset(); fillRooms(DATA.resorts[0].code);
-    document.getElementById('tk-ref').value=ref; btn.disabled=false;
+    msg.innerHTML='✅ 신청이 접수되었습니다. 진행 상황은 아래 <b>내 신청 조회</b>에서 <b>사번 + 휴대폰 뒷 4자리</b>로 확인하세요.';
+    e.target.reset(); fillRooms(DATA.resorts[0].code); btn.disabled=false;
   };
   fetch(SUBMIT_URL,{method:'POST',body:body}).then(done).catch(done);
 });
 
 document.getElementById('tk-btn').addEventListener('click',()=>{
-  const ref=document.getElementById('tk-ref').value.trim(); const emp=document.getElementById('tk-emp').value.trim(); const box=document.getElementById('tk-result');
-  if(!emp||!ref){ box.innerHTML='<div class="tk-card err">사번과 신청번호를 모두 입력하세요.</div>'; return; }
+  const emp=document.getElementById('tk-emp').value.trim(); const p4=document.getElementById('tk-ph').value.replace(/D/g,''); const box=document.getElementById('tk-result');
+  if(!emp||p4.length<4){ box.innerHTML='<div class="tk-card err">사번과 휴대폰 뒷 4자리를 입력하세요.</div>'; return; }
   if(!APP_READY){ box.innerHTML='<div class="tk-card err">조회 준비 중입니다.</div>'; return; }
   box.innerHTML='<div class="tk-card">조회 중…</div>';
-  fetch(SUBMIT_URL+'?action=track&ref='+encodeURIComponent(ref)+'&empno='+encodeURIComponent(emp)).then(r=>r.json()).then(res=>{
-    if(!res||!res.ok){ box.innerHTML='<div class="tk-card err">사번 또는 신청번호가 일치하지 않습니다. 다시 확인해주세요.</div>'; return; }
-    box.innerHTML='<div class="tk-card"><div class="tk-status">'+esc(res.status)+'</div>'+
-      '<div class="tk-meta">'+esc(res.name)+'님 · '+esc(res.resort)+' · '+esc(res.checkin)+' · '+esc(res.nights)+' · '+esc(res.roomType||'-')+' · '+esc(res.persons)+'인</div>'+
-      (res.wait?'<div class="tk-wait">대기번호 <b>'+esc(res.wait)+'</b></div>':'')+
-      (res.reason?'<div class="tk-reason"><b>반려사유</b> '+esc(res.reason)+'</div>':'')+'</div>';
+  fetch(SUBMIT_URL+'?action=track&empno='+encodeURIComponent(emp)+'&phone4='+encodeURIComponent(p4)).then(r=>r.json()).then(res=>{
+    if(!res||!res.ok){ box.innerHTML='<div class="tk-card err">일치하는 신청이 없습니다. 사번·휴대폰 뒷 4자리를 확인해주세요.</div>'; return; }
+    box.innerHTML=res.rows.map(r=>'<div class="tk-card"><div class="tk-status">'+esc(r.status)+'</div>'+
+      '<div class="tk-meta">'+esc(r.name)+'님 · '+esc(r.resort)+' · '+esc(r.checkin)+' · '+esc(r.nights)+' · '+esc(r.roomType||'-')+' · '+esc(r.persons)+'인</div>'+
+      (r.wait?'<div class="tk-wait">대기번호 <b>'+esc(r.wait)+'</b></div>':'')+
+      (r.reason?'<div class="tk-reason"><b>반려사유</b> '+esc(r.reason)+'</div>':'')+'</div>').join('');
   }).catch(()=>{ box.innerHTML='<div class="tk-card err">조회 실패(네트워크/차단).</div>'; });
 });
 
