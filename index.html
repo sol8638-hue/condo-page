@@ -115,7 +115,9 @@
   .md-apply:hover{filter:brightness(1.06);}
   .modal-card.wide{max-width:1080px;}
   .ad-st,.ad-wt{font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-family:inherit;}
-  .ad-wt{width:64px;text-align:center;} .ad-rs{width:150px;}
+  .ad-wt{width:60px;text-align:center;} .ad-rs{width:150px;} .ad-bk{width:120px;}
+  .ad-save{background:var(--brown);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-weight:800;cursor:pointer;font-size:13px;white-space:nowrap;}
+  .ad-save:hover{filter:brightness(1.08);} .ad-save:disabled{opacity:.7;}
   .tk-reason{margin-top:10px;font-size:13.5px;color:var(--brand);background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;}
   .modal-card.wide table{font-size:13px;} .modal-card.wide th,.modal-card.wide td{padding:10px 14px;vertical-align:top;}
   .ad-ref{font-size:11px;color:var(--gray);font-variant-numeric:tabular-nums;}
@@ -434,7 +436,7 @@ function esc(s){ s=(s==null?'':String(s)); return s.replace(/[&<>]/g,c=>({'&':'&
 
 const apResort=document.getElementById('ap-resort'), apRoom=document.getElementById('ap-room');
 DATA.resorts.forEach(r=>{const o=document.createElement('option');o.value=r.name;o.dataset.code=r.code;o.textContent=r.name;apResort.appendChild(o);});
-function fillRooms(code){ apRoom.innerHTML='<option value="">상관없음 / 추천</option>'; (DATA.rooms[code]||[]).forEach(rm=>{const o=document.createElement('option');o.value=rm.nm;o.textContent=rm.nm+(rm.prsn?' ('+rm.prsn+'인)':'');apRoom.appendChild(o);}); }
+function fillRooms(code){ apRoom.innerHTML='<option value="">상관없음</option>'; (DATA.rooms[code]||[]).forEach(rm=>{const o=document.createElement('option');o.value=rm.nm;o.textContent=rm.nm+(rm.prsn?' ('+rm.prsn+'인)':'');apRoom.appendChild(o);}); }
 function apCode(){ const o=apResort.selectedOptions[0]; return o?o.dataset.code:DATA.resorts[0].code; }
 apResort.addEventListener('change',()=>fillRooms(apCode()));
 fillRooms(DATA.resorts[0].code);
@@ -474,6 +476,7 @@ document.getElementById('tk-btn').addEventListener('click',()=>{
     box.innerHTML=res.rows.map(r=>'<div class="tk-card"><div class="tk-status">'+esc(r.status)+'</div>'+
       '<div class="tk-meta">'+esc(r.name)+'님 · '+esc(r.resort)+' · '+esc(r.checkin)+' · '+esc(r.nights)+' · '+esc(r.roomType||'-')+' · '+esc(r.persons)+'인</div>'+
       (r.wait?'<div class="tk-wait">대기번호 <b>'+esc(r.wait)+'</b></div>':'')+
+      (r.booking?'<div class="tk-wait">예약번호 <b>'+esc(r.booking)+'</b></div>':'')+
       (r.reason?'<div class="tk-reason"><b>반려사유</b> '+esc(r.reason)+'</div>':'')+'</div>').join('');
   }).catch(()=>{ box.innerHTML='<div class="tk-card err">조회 실패(네트워크/차단).</div>'; });
 });
@@ -496,28 +499,28 @@ function renderAdmin(res, key){
   const card=document.getElementById('modalCard'); card.classList.add('wide');
   const body=res.rows.map(r=>{
     const opts=res.statuses.map(s=>'<option'+(s===r.status?' selected':'')+'>'+s+'</option>').join('');
-    return '<tr><td><select data-row="'+r.row+'" class="ad-st">'+opts+'</select></td>'+
-      '<td><input class="ad-wt" data-row="'+r.row+'" value="'+esc(r.wait)+'" placeholder="-"></td>'+
+    return '<tr>'+
+      '<td><select class="ad-st">'+opts+'</select></td>'+
+      '<td><input class="ad-wt" value="'+esc(r.wait)+'" placeholder="-"></td>'+
+      '<td><input class="ad-bk" value="'+esc(r.booking)+'" placeholder="예약완료 시"></td>'+
+      '<td><input class="ad-rs" value="'+esc(r.reason)+'" placeholder="반려 시 사유"></td>'+
       '<td><b>'+esc(r.resort)+'</b><br><span class="prsn">'+esc(r.checkin)+' · '+esc(r.nights)+' · '+esc(r.roomType)+'</span><br><span class="ad-ref">'+esc(r.ref)+'</span></td>'+
-      '<td>'+esc(r.name)+'<br><span class="prsn">'+esc(r.dept)+' · 사번 '+esc(r.empno)+' · '+esc(r.phone)+'</span></td>'+
+      '<td>'+esc(r.name)+'<br><span class="prsn">'+esc(r.dept)+' · 사번 '+esc(r.empno)+'<br>'+esc(r.phone)+'</span></td>'+
       '<td>'+esc(r.persons)+'인</td><td class="prsn">'+esc(r.note)+'</td>'+
-      '<td><input class="ad-rs" data-row="'+r.row+'" value="'+esc(r.reason)+'" placeholder="반려 시 사유"></td></tr>';
+      '<td><button class="ad-save" data-row="'+r.row+'">저장</button></td></tr>';
   }).join('');
   card.innerHTML='<div class="modal-head"><div class="md-date">신청 관리 ('+res.rows.length+'건)</div><button class="md-close">×</button></div>'+
-    '<div class="scroll"><table><thead><tr><th>상태</th><th>대기</th><th>지점 / 일정 / 신청번호</th><th>신청자</th><th>인원</th><th>비고</th><th>반려사유</th></tr></thead><tbody>'+
-    (body||'<tr><td colspan="7" class="prsn" style="padding:24px;text-align:center">신청 내역이 없습니다.</td></tr>')+'</tbody></table></div>';
+    '<div class="scroll"><table><thead><tr><th>상태</th><th>대기번호</th><th>예약번호</th><th>반려사유</th><th>지점 / 일정 / 신청번호</th><th>신청자</th><th>인원</th><th>비고</th><th>저장</th></tr></thead><tbody>'+
+    (body||'<tr><td colspan="9" class="prsn" style="padding:24px;text-align:center">신청 내역이 없습니다.</td></tr>')+'</tbody></table></div>';
   card.querySelector('.md-close').addEventListener('click',closeDetail);
-  card.querySelectorAll('.ad-st').forEach(s=>s.addEventListener('change',()=>{
-    const b=new URLSearchParams({action:'setStatus',key:key,row:s.dataset.row,value:s.value});
-    s.disabled=true; fetch(SUBMIT_URL,{method:'POST',body:b}).catch(()=>{}).finally(()=>{s.disabled=false;});
-  }));
-  card.querySelectorAll('.ad-wt').forEach(inp=>inp.addEventListener('change',()=>{
-    const b=new URLSearchParams({action:'setWait',key:key,row:inp.dataset.row,value:inp.value});
-    fetch(SUBMIT_URL,{method:'POST',body:b}).catch(()=>{});
-  }));
-  card.querySelectorAll('.ad-rs').forEach(inp=>inp.addEventListener('change',()=>{
-    const b=new URLSearchParams({action:'setReason',key:key,row:inp.dataset.row,value:inp.value});
-    fetch(SUBMIT_URL,{method:'POST',body:b}).catch(()=>{});
+  card.querySelectorAll('.ad-save').forEach(btn=>btn.addEventListener('click',()=>{
+    const tr=btn.closest('tr');
+    const b=new URLSearchParams({action:'saveRow', key:key, row:btn.dataset.row,
+      status: tr.querySelector('.ad-st').value, wait: tr.querySelector('.ad-wt').value,
+      reason: tr.querySelector('.ad-rs').value, booking: tr.querySelector('.ad-bk').value });
+    btn.disabled=true; btn.textContent='저장 중…';
+    const ok=()=>{ btn.textContent='저장됨 ✓'; setTimeout(()=>{btn.disabled=false;btn.textContent='저장';},1500); };
+    fetch(SUBMIT_URL,{method:'POST',body:b}).then(ok).catch(ok);
   }));
 }
 
