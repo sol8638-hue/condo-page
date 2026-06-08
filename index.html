@@ -395,7 +395,7 @@ document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') closeDetail(); }
 
 // ── 예약 신청 + 관리자 ──────────────────────────────
 // 배포 후 Apps Script 웹앱 URL을 넣으면 활성화됩니다.
-const SUBMIT_URL = '__APPS_SCRIPT_URL__';
+const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbxwwvajmjn9zOIHbGJbu_hLhyZLsan1ouzKSlpC-FTpKlTc8tczJh532KkWOFgm_-Jw/exec';
 const APP_READY = SUBMIT_URL.indexOf('script.google.com') >= 0;
 function esc(s){ s=(s==null?'':String(s)); return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
 
