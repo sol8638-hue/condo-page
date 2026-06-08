@@ -113,6 +113,27 @@
   .md-apply{display:block;width:calc(100% - 44px);margin:14px 22px 4px;padding:13px;border:none;border-radius:12px;cursor:pointer;
     background:linear-gradient(135deg,var(--brown),var(--brown2));color:#fff;font-size:14.5px;font-weight:800;}
   .md-apply:hover{filter:brightness(1.06);}
+  .modal-card.wide{max-width:1080px;}
+  .ad-st,.ad-wt{font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-family:inherit;}
+  .ad-wt{width:64px;text-align:center;} .ad-rs{width:150px;}
+  .tk-reason{margin-top:10px;font-size:13.5px;color:var(--brand);background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;}
+  .modal-card.wide table{font-size:13px;} .modal-card.wide th,.modal-card.wide td{padding:10px 14px;vertical-align:top;}
+  .ad-ref{font-size:11px;color:var(--gray);font-variant-numeric:tabular-nums;}
+
+  /* 내 신청 조회 */
+  .track-box{margin-top:24px;padding-top:20px;border-top:1px dashed var(--line);}
+  .track-box h3{font-size:15px;font-weight:800;margin:0 0 6px;color:var(--brown);}
+  .track-box p{font-size:13px;color:var(--ink2);margin:0 0 12px;line-height:1.6;}
+  .track-row{display:flex;gap:10px;}
+  .track-row input{flex:1;font-size:15px;padding:10px 12px;border:1px solid var(--line);border-radius:11px;font-family:inherit;}
+  .track-row input:focus{outline:none;border-color:var(--brand);}
+  .track-row button{flex:none;width:90px;margin:0;}
+  .tk-card{margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:#fafbfd;}
+  .tk-card.err{color:var(--brand);font-weight:600;}
+  .tk-status{font-size:19px;font-weight:800;color:var(--brown);}
+  .tk-meta{font-size:13px;color:var(--ink2);margin-top:7px;}
+  .tk-wait{margin-top:10px;font-size:14px;font-weight:700;} .tk-wait b{color:var(--brand);font-size:20px;}
+  .ref-badge{display:inline-block;margin-top:8px;background:var(--bgray);color:var(--brown);font-weight:800;padding:6px 12px;border-radius:8px;font-variant-numeric:tabular-nums;}
 
   /* 예약 신청 폼 */
   .apply-wrap{padding:24px 26px;max-width:780px;margin:0 auto;}
@@ -244,6 +265,16 @@
         <button type="submit" class="apply-btn" id="ap-submit">신청 제출</button>
         <div class="apply-msg" id="ap-msg"></div>
       </form>
+
+      <div class="track-box">
+        <h3>🔎 내 신청 조회</h3>
+        <p>신청할 때 받은 <b>신청번호</b>를 입력하면 진행 현황과 대기번호를 확인할 수 있습니다.</p>
+        <div class="track-row">
+          <input id="tk-ref" placeholder="신청번호 (예: H20260708-1234)">
+          <button type="button" class="apply-btn" id="tk-btn">조회</button>
+        </div>
+        <div id="tk-result"></div>
+      </div>
     </div>
   </div>
 
@@ -364,7 +395,7 @@ function openDetail(code,ds){
   document.querySelector('#modalCard .md-close').addEventListener('click',closeDetail);
   var _ab=document.getElementById('md-apply'); if(_ab) _ab.addEventListener('click',function(){ closeDetail(); applyPrefill(code, ds); });
 }
-function closeDetail(){ document.getElementById('modal').classList.remove('open'); document.querySelectorAll('.cal-cell.sel').forEach(c=>c.classList.remove('sel')); }
+function closeDetail(){ document.getElementById('modal').classList.remove('open'); document.getElementById('modalCard').classList.remove('wide'); document.querySelectorAll('.cal-cell.sel').forEach(c=>c.classList.remove('sel')); }
 
 const sel=document.getElementById('resort'), sel2=document.getElementById('resort2');
 DATA.resorts.forEach(r=>{ [sel,sel2].forEach(s=>{const o=document.createElement('option');o.value=r.code;o.textContent=r.name;s.appendChild(o);}); });
@@ -414,17 +445,36 @@ function applyPrefill(code, ds){
   document.getElementById('apply-view').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
+function genRef(){ const d=new Date(); const y=''+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0'); return 'H'+y+'-'+(1000+Math.floor(Math.random()*9000)); }
 document.getElementById('applyForm').addEventListener('submit',(e)=>{
   e.preventDefault();
   const msg=document.getElementById('ap-msg'), btn=document.getElementById('ap-submit');
   if(!APP_READY){ msg.className='apply-msg err'; msg.textContent='신청 기능 준비 중입니다. 인사팀에 문의해주세요.'; return; }
   const fd=new FormData(e.target); const body=new URLSearchParams();
   for(const [k,v] of fd.entries()) body.append(k,v);
+  const ref=genRef(); body.append('ref',ref);
   btn.disabled=true; msg.className='apply-msg'; msg.textContent='제출 중…';
-  fetch(SUBMIT_URL,{method:'POST',body:body})
-    .then(()=>{ msg.className='apply-msg ok'; msg.textContent='✅ 신청이 접수되었습니다. 인사팀이 순차적으로 처리합니다.'; e.target.reset(); fillRooms(DATA.resorts[0].code); })
-    .catch(()=>{ msg.className='apply-msg ok'; msg.textContent='✅ 신청이 접수되었습니다.'; e.target.reset(); })
-    .finally(()=>{ btn.disabled=false; });
+  const done=()=>{
+    msg.className='apply-msg ok';
+    msg.innerHTML='✅ 신청이 접수되었습니다. 아래 신청번호로 진행상황을 조회하세요.<br><span class="ref-badge">신청번호 '+ref+'</span>';
+    e.target.reset(); fillRooms(DATA.resorts[0].code);
+    document.getElementById('tk-ref').value=ref; btn.disabled=false;
+  };
+  fetch(SUBMIT_URL,{method:'POST',body:body}).then(done).catch(done);
+});
+
+document.getElementById('tk-btn').addEventListener('click',()=>{
+  const ref=document.getElementById('tk-ref').value.trim(); const box=document.getElementById('tk-result');
+  if(!ref){ box.innerHTML='<div class="tk-card err">신청번호를 입력하세요.</div>'; return; }
+  if(!APP_READY){ box.innerHTML='<div class="tk-card err">조회 준비 중입니다.</div>'; return; }
+  box.innerHTML='<div class="tk-card">조회 중…</div>';
+  fetch(SUBMIT_URL+'?action=track&ref='+encodeURIComponent(ref)).then(r=>r.json()).then(res=>{
+    if(!res||!res.ok){ box.innerHTML='<div class="tk-card err">해당 신청번호를 찾을 수 없습니다. 번호를 확인해주세요.</div>'; return; }
+    box.innerHTML='<div class="tk-card"><div class="tk-status">'+esc(res.status)+'</div>'+
+      '<div class="tk-meta">'+esc(res.name)+'님 · '+esc(res.resort)+' · '+esc(res.checkin)+' · '+esc(res.nights)+' · '+esc(res.roomType||'-')+' · '+esc(res.persons)+'인</div>'+
+      (res.wait?'<div class="tk-wait">대기번호 <b>'+esc(res.wait)+'</b></div>':'')+
+      (res.reason?'<div class="tk-reason"><b>반려사유</b> '+esc(res.reason)+'</div>':'')+'</div>';
+  }).catch(()=>{ box.innerHTML='<div class="tk-card err">조회 실패(네트워크/차단).</div>'; });
 });
 
 // 관리자: 페이지 안에서 신청 목록 조회/상태변경 (구글 시트 안 열고)
@@ -432,7 +482,7 @@ function openAdmin(){
   if(!APP_READY){ alert('신청 기능이 아직 설정되지 않았습니다.'); return; }
   const key = sessionStorage.getItem('adminKey') || prompt('관리자 암호를 입력하세요');
   if(!key) return;
-  const card=document.getElementById('modalCard');
+  const card=document.getElementById('modalCard'); card.classList.add('wide');
   card.innerHTML='<div class="modal-head"><div class="md-date">신청 관리</div><button class="md-close">×</button></div><div class="md-sum">불러오는 중…</div>';
   document.getElementById('modal').classList.add('open');
   card.querySelector('.md-close').addEventListener('click',closeDetail);
@@ -442,21 +492,31 @@ function openAdmin(){
   }).catch(err=>{ card.querySelector('.md-sum').textContent='불러오기 실패(네트워크 차단 가능): '+err; });
 }
 function renderAdmin(res, key){
-  const card=document.getElementById('modalCard');
+  const card=document.getElementById('modalCard'); card.classList.add('wide');
   const body=res.rows.map(r=>{
     const opts=res.statuses.map(s=>'<option'+(s===r.status?' selected':'')+'>'+s+'</option>').join('');
     return '<tr><td><select data-row="'+r.row+'" class="ad-st">'+opts+'</select></td>'+
-      '<td><b>'+esc(r.resort)+'</b><br><span class="prsn">'+esc(r.checkin)+' · '+esc(r.nights)+' · '+esc(r.roomType)+'</span></td>'+
+      '<td><input class="ad-wt" data-row="'+r.row+'" value="'+esc(r.wait)+'" placeholder="-"></td>'+
+      '<td><b>'+esc(r.resort)+'</b><br><span class="prsn">'+esc(r.checkin)+' · '+esc(r.nights)+' · '+esc(r.roomType)+'</span><br><span class="ad-ref">'+esc(r.ref)+'</span></td>'+
       '<td>'+esc(r.name)+'<br><span class="prsn">'+esc(r.dept)+' · '+esc(r.phone)+'</span></td>'+
-      '<td>'+esc(r.persons)+'인</td><td class="prsn">'+esc(r.note)+'</td></tr>';
+      '<td>'+esc(r.persons)+'인</td><td class="prsn">'+esc(r.note)+'</td>'+
+      '<td><input class="ad-rs" data-row="'+r.row+'" value="'+esc(r.reason)+'" placeholder="반려 시 사유"></td></tr>';
   }).join('');
   card.innerHTML='<div class="modal-head"><div class="md-date">신청 관리 ('+res.rows.length+'건)</div><button class="md-close">×</button></div>'+
-    '<div class="scroll"><table><thead><tr><th>상태</th><th>지점 / 일정</th><th>신청자</th><th>인원</th><th>비고</th></tr></thead><tbody>'+
-    (body||'<tr><td colspan="5" class="prsn" style="padding:24px;text-align:center">신청 내역이 없습니다.</td></tr>')+'</tbody></table></div>';
+    '<div class="scroll"><table><thead><tr><th>상태</th><th>대기</th><th>지점 / 일정 / 신청번호</th><th>신청자</th><th>인원</th><th>비고</th><th>반려사유</th></tr></thead><tbody>'+
+    (body||'<tr><td colspan="7" class="prsn" style="padding:24px;text-align:center">신청 내역이 없습니다.</td></tr>')+'</tbody></table></div>';
   card.querySelector('.md-close').addEventListener('click',closeDetail);
   card.querySelectorAll('.ad-st').forEach(s=>s.addEventListener('change',()=>{
     const b=new URLSearchParams({action:'setStatus',key:key,row:s.dataset.row,value:s.value});
     s.disabled=true; fetch(SUBMIT_URL,{method:'POST',body:b}).catch(()=>{}).finally(()=>{s.disabled=false;});
+  }));
+  card.querySelectorAll('.ad-wt').forEach(inp=>inp.addEventListener('change',()=>{
+    const b=new URLSearchParams({action:'setWait',key:key,row:inp.dataset.row,value:inp.value});
+    fetch(SUBMIT_URL,{method:'POST',body:b}).catch(()=>{});
+  }));
+  card.querySelectorAll('.ad-rs').forEach(inp=>inp.addEventListener('change',()=>{
+    const b=new URLSearchParams({action:'setReason',key:key,row:inp.dataset.row,value:inp.value});
+    fetch(SUBMIT_URL,{method:'POST',body:b}).catch(()=>{});
   }));
 }
 
