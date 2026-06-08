@@ -116,8 +116,11 @@
   .modal-card.wide{max-width:1080px;}
   .ad-st,.ad-wt{font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-family:inherit;}
   .ad-wt{width:60px;text-align:center;} .ad-rs{width:150px;} .ad-bk{width:120px;}
+  .ad-actions{display:flex;flex-direction:column;gap:6px;}
   .ad-save{background:var(--brown);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-weight:800;cursor:pointer;font-size:13px;white-space:nowrap;}
   .ad-save:hover{filter:brightness(1.08);} .ad-save:disabled{opacity:.7;}
+  .ad-del{background:#fff;color:#c0392b;border:1px solid #e3cfca;border-radius:8px;padding:7px 14px;font-weight:700;cursor:pointer;font-size:13px;white-space:nowrap;}
+  .ad-del:hover{background:#fdecea;} .ad-del:disabled{opacity:.7;}
   .tk-reason{margin-top:10px;font-size:13.5px;color:var(--brand);background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;}
   .modal-card.wide table{font-size:13px;} .modal-card.wide th,.modal-card.wide td{padding:10px 14px;vertical-align:top;}
   .ad-ref{font-size:11px;color:var(--gray);font-variant-numeric:tabular-nums;}
@@ -257,7 +260,7 @@
         </div>
         <div class="frow">
           <label>희망 지점 <span class="req">*</span><select name="resort" id="ap-resort" required></select></label>
-          <label>객실 타입 <select name="roomType" id="ap-room"></select></label>
+          <label>객실 타입 <span class="req">*</span><select name="roomType" id="ap-room" required></select></label>
         </div>
         <div class="frow">
           <label>체크인 날짜 <span class="req">*</span><input name="checkin" id="ap-checkin" type="date" required></label>
@@ -436,7 +439,7 @@ function esc(s){ s=(s==null?'':String(s)); return s.replace(/[&<>]/g,c=>({'&':'&
 
 const apResort=document.getElementById('ap-resort'), apRoom=document.getElementById('ap-room');
 DATA.resorts.forEach(r=>{const o=document.createElement('option');o.value=r.name;o.dataset.code=r.code;o.textContent=r.name;apResort.appendChild(o);});
-function fillRooms(code){ apRoom.innerHTML='<option value="">상관없음</option>'; (DATA.rooms[code]||[]).forEach(rm=>{const o=document.createElement('option');o.value=rm.nm;o.textContent=rm.nm+(rm.prsn?' ('+rm.prsn+'인)':'');apRoom.appendChild(o);}); }
+function fillRooms(code){ apRoom.innerHTML='<option value="상관없음">상관없음</option>'; (DATA.rooms[code]||[]).forEach(rm=>{const o=document.createElement('option');o.value=rm.nm;o.textContent=rm.nm+(rm.prsn?' ('+rm.prsn+'인)':'');apRoom.appendChild(o);}); }
 function apCode(){ const o=apResort.selectedOptions[0]; return o?o.dataset.code:DATA.resorts[0].code; }
 apResort.addEventListener('change',()=>fillRooms(apCode()));
 fillRooms(DATA.resorts[0].code);
@@ -490,10 +493,14 @@ function openAdmin(){
   card.innerHTML='<div class="modal-head"><div class="md-date">신청 관리</div><button class="md-close">×</button></div><div class="md-sum">불러오는 중…</div>';
   document.getElementById('modal').classList.add('open');
   card.querySelector('.md-close').addEventListener('click',closeDetail);
+  loadAdmin(key);
+}
+function loadAdmin(key){
+  const card=document.getElementById('modalCard');
   fetch(SUBMIT_URL+'?action=list&key='+encodeURIComponent(key)).then(r=>r.json()).then(res=>{
-    if(!res||!res.ok){ sessionStorage.removeItem('adminKey'); card.querySelector('.md-sum').textContent='암호 오류 또는 접근 불가'+(res&&res.error?' ('+res.error+')':''); return; }
+    if(!res||!res.ok){ sessionStorage.removeItem('adminKey'); var s=card.querySelector('.md-sum'); if(s) s.textContent='암호 오류 또는 접근 불가'+(res&&res.error?' ('+res.error+')':''); return; }
     sessionStorage.setItem('adminKey', key); renderAdmin(res, key);
-  }).catch(err=>{ card.querySelector('.md-sum').textContent='불러오기 실패(네트워크 차단 가능): '+err; });
+  }).catch(err=>{ var s=card.querySelector('.md-sum'); if(s) s.textContent='불러오기 실패(네트워크 차단 가능): '+err; });
 }
 function renderAdmin(res, key){
   const card=document.getElementById('modalCard'); card.classList.add('wide');
@@ -507,10 +514,11 @@ function renderAdmin(res, key){
       '<td><b>'+esc(r.resort)+'</b><br><span class="prsn">'+esc(r.checkin)+' · '+esc(r.nights)+' · '+esc(r.roomType)+'</span><br><span class="ad-ref">'+esc(r.ref)+'</span></td>'+
       '<td>'+esc(r.name)+'<br><span class="prsn">'+esc(r.dept)+' · 사번 '+esc(r.empno)+'<br>'+esc(r.phone)+'</span></td>'+
       '<td>'+esc(r.persons)+'인</td><td class="prsn">'+esc(r.note)+'</td>'+
-      '<td><button class="ad-save" data-row="'+r.row+'">저장</button></td></tr>';
+      '<td><div class="ad-actions"><button class="ad-save" data-row="'+r.row+'">저장</button>'+
+      '<button class="ad-del" data-row="'+r.row+'">삭제</button></div></td></tr>';
   }).join('');
   card.innerHTML='<div class="modal-head"><div class="md-date">신청 관리 ('+res.rows.length+'건)</div><button class="md-close">×</button></div>'+
-    '<div class="scroll"><table><thead><tr><th>상태</th><th>대기번호</th><th>예약번호</th><th>반려사유</th><th>지점 / 일정 / 신청번호</th><th>신청자</th><th>인원</th><th>비고</th><th>저장</th></tr></thead><tbody>'+
+    '<div class="scroll"><table><thead><tr><th>상태</th><th>대기번호</th><th>예약번호</th><th>반려사유</th><th>지점 / 일정 / 신청번호</th><th>신청자</th><th>인원</th><th>비고</th><th>관리</th></tr></thead><tbody>'+
     (body||'<tr><td colspan="9" class="prsn" style="padding:24px;text-align:center">신청 내역이 없습니다.</td></tr>')+'</tbody></table></div>';
   card.querySelector('.md-close').addEventListener('click',closeDetail);
   card.querySelectorAll('.ad-save').forEach(btn=>btn.addEventListener('click',()=>{
@@ -521,6 +529,13 @@ function renderAdmin(res, key){
     btn.disabled=true; btn.textContent='저장 중…';
     const ok=()=>{ btn.textContent='저장됨 ✓'; setTimeout(()=>{btn.disabled=false;btn.textContent='저장';},1500); };
     fetch(SUBMIT_URL,{method:'POST',body:b}).then(ok).catch(ok);
+  }));
+  card.querySelectorAll('.ad-del').forEach(btn=>btn.addEventListener('click',()=>{
+    if(!confirm('이 신청을 삭제할까요? 되돌릴 수 없습니다.')) return;
+    const b=new URLSearchParams({action:'deleteRow', key:key, row:btn.dataset.row});
+    btn.disabled=true; btn.textContent='삭제 중…';
+    const reload=()=>setTimeout(()=>loadAdmin(key),700);
+    fetch(SUBMIT_URL,{method:'POST',body:b}).then(reload).catch(reload);
   }));
 }
 
