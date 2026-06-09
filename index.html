@@ -119,6 +119,10 @@
   .ad-trip{min-width:184px;} .ad-trip .prsn,.ad-who .prsn{line-height:1.5;margin-top:1px;} .ad-who{min-width:132px;}
   .ad-bar{display:flex;gap:16px;align-items:center;padding:12px 22px;border-bottom:1px solid var(--line);font-size:13px;font-weight:700;color:var(--ink2);flex-wrap:wrap;}
   .ad-bar select{font-size:13px;font-weight:600;padding:7px 10px;}
+  .ad-bar input[type=date]{font-size:12.5px;padding:5px 7px;border:1px solid var(--line);border-radius:8px;font-family:inherit;}
+  .ad-tilde{margin:0 5px;color:var(--ink2);}
+  .ad-reset{background:var(--bgray);color:var(--brown);border:none;border-radius:8px;padding:7px 13px;font-weight:700;cursor:pointer;font-size:12.5px;}
+  .ad-reset:hover{filter:brightness(.97);}
   .tk-memo{margin-top:10px;font-size:13.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;}
   .tk-memo b{color:var(--ink);}
   .ad-actions{display:flex;flex-direction:column;gap:6px;}
@@ -541,6 +545,7 @@ let ADMIN_ROWS=[], ADMIN_STATUSES=[], ADMIN_KEY='';
 function statusColor(s){ return {'접수':'#8a8079','승인':'#3b6ef0','반려':'#d9483a','진행중':'#c9a14a','대기':'#9b7bb8','예약완료':'#2f9e6f','취소':'#b6bac6'}[s]||'#8a8079'; }
 function fmtDT(s){ if(!s) return ''; const d=new Date(s); if(isNaN(d.getTime())) return String(s).slice(0,10); const p=n=>String(n).padStart(2,'0'); return (d.getMonth()+1)+'/'+d.getDate()+' '+p(d.getHours())+':'+p(d.getMinutes()); }
 function fmtD(s){ if(!s) return ''; if(/^d{4}-d{2}-d{2}$/.test(String(s))) return String(s); const d=new Date(s); if(isNaN(d.getTime())) return String(s).slice(0,10); const p=n=>String(n).padStart(2,'0'); const w=['일','월','화','수','목','금','토'][d.getDay()]; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'('+w+')'; }
+function toYMD(s){ if(!s) return ''; s=String(s); if(/^d{4}-d{2}-d{2}$/.test(s)) return s; const d=new Date(s); if(isNaN(d.getTime())) return s.slice(0,10); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
 
 function openAdmin(){
   if(!APP_READY){ alert('신청 기능이 아직 설정되지 않았습니다.'); return; }
@@ -564,17 +569,27 @@ function renderAdmin(){
   const filterOpts='<option value="">전체</option>'+ADMIN_STATUSES.map(s=>'<option>'+s+'</option>').join('');
   card.innerHTML='<div class="modal-head"><div class="md-date">신청 관리 <span id="adCount"></span></div><button class="md-close">×</button></div>'+
     '<div class="ad-bar"><label>상태 <select id="adFilter">'+filterOpts+'</select></label>'+
-      '<label>정렬 <select id="adSort"><option value="new">신청일 최신순</option><option value="old">신청일 오래된순</option><option value="checkin">이용일(체크인)순</option></select></label></div>'+
+      '<label>정렬 <select id="adSort"><option value="new">신청일 최신순</option><option value="old">신청일 오래된순</option><option value="checkin">이용일순</option></select></label>'+
+      '<label>신청일 <input type="date" id="adFromSub"><span class="ad-tilde">~</span><input type="date" id="adToSub"></label>'+
+      '<label>이용일 <input type="date" id="adFromUse"><span class="ad-tilde">~</span><input type="date" id="adToUse"></label>'+
+      '<button id="adReset" class="ad-reset">초기화</button></div>'+
     '<div class="scroll"><table><thead><tr><th>상태</th><th>신청일</th><th>지점 / 일정 / 신청번호</th><th>신청자</th><th>인원</th><th>대기번호</th><th>예약번호</th><th>관리자 비고</th><th>반려사유</th><th>관리</th></tr></thead><tbody id="adBody"></tbody></table></div>';
   card.querySelector('.md-close').addEventListener('click',closeDetail);
-  card.querySelector('#adFilter').addEventListener('change',drawAdminRows);
-  card.querySelector('#adSort').addEventListener('change',drawAdminRows);
+  ['adFilter','adSort','adFromSub','adToSub','adFromUse','adToUse'].forEach(id=>card.querySelector('#'+id).addEventListener('change',drawAdminRows));
+  card.querySelector('#adReset').addEventListener('click',()=>{ ['adFilter','adFromSub','adToSub','adFromUse','adToUse'].forEach(id=>card.querySelector('#'+id).value=''); card.querySelector('#adSort').value='new'; drawAdminRows(); });
   drawAdminRows();
 }
 function drawAdminRows(){
   const card=document.getElementById('modalCard');
   const filter=card.querySelector('#adFilter').value, sort=card.querySelector('#adSort').value;
-  let rows=ADMIN_ROWS.filter(r=>!filter||r.status===filter);
+  const fSub=card.querySelector('#adFromSub').value, tSub=card.querySelector('#adToSub').value;
+  const fUse=card.querySelector('#adFromUse').value, tUse=card.querySelector('#adToUse').value;
+  let rows=ADMIN_ROWS.filter(r=>{
+    if(filter && r.status!==filter) return false;
+    if(fSub||tSub){ const d=toYMD(r.submittedAt); if(fSub&&d<fSub) return false; if(tSub&&d>tSub) return false; }
+    if(fUse||tUse){ const d=toYMD(r.checkin); if(fUse&&d<fUse) return false; if(tUse&&d>tUse) return false; }
+    return true;
+  });
   rows=rows.slice().sort((a,b)=>{
     if(sort==='checkin') return String(a.checkin).localeCompare(String(b.checkin));
     const c=String(b.submittedAt).localeCompare(String(a.submittedAt));
