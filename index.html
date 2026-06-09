@@ -114,8 +114,12 @@
     background:linear-gradient(135deg,var(--brown),var(--brown2));color:#fff;font-size:14.5px;font-weight:800;}
   .md-apply:hover{filter:brightness(1.06);}
   .modal-card.wide{max-width:1080px;}
-  .ad-st,.ad-wt{font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-family:inherit;}
-  .ad-wt{width:60px;text-align:center;} .ad-rs{width:150px;} .ad-bk{width:120px;}
+  .ad-st,.ad-wt,.ad-bk,.ad-rs,.ad-memo{font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-family:inherit;}
+  .ad-wt{width:60px;text-align:center;} .ad-rs{width:140px;} .ad-bk{width:120px;} .ad-memo{width:150px;}
+  .ad-bar{display:flex;gap:16px;align-items:center;padding:12px 22px;border-bottom:1px solid var(--line);font-size:13px;font-weight:700;color:var(--ink2);flex-wrap:wrap;}
+  .ad-bar select{font-size:13px;font-weight:600;padding:7px 10px;}
+  .tk-memo{margin-top:10px;font-size:13.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;}
+  .tk-memo b{color:var(--ink);}
   .ad-actions{display:flex;flex-direction:column;gap:6px;}
   .ad-save{background:var(--brown);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-weight:800;cursor:pointer;font-size:13px;white-space:nowrap;}
   .ad-save:hover{filter:brightness(1.08);} .ad-save:disabled{opacity:.7;}
@@ -310,7 +314,7 @@
   </div>
 
   <div id="guide-view" style="display:none">
-    <div class="guide"><section class="g-card"><div class="g-num">1</div><div class="g-body"><h3>객실 이용 기준</h3><ul class="g-list"><li>기본 객실: <b>디럭스</b></li><li>업그레이드 객실: <b>스위트 · 프리미엄 · 로얄</b> <span class="muted">(잔여 객실 시)</span></li></ul></div></section><section class="g-card"><div class="g-num">2</div><div class="g-body"><h3>예약 신청 기준</h3><p class="g-lead">콘도 예약은 예약 유형에 따라 신청 시점이 다릅니다.</p><div class="g-groups"><div class="g-group"><div class="g-group-h">일반 예약</div><ul class="g-list"><li>이용일 기준 약 2개월 전부터 예약 가능</li><li>예약 오픈 이후 순차적으로 예약 진행</li></ul></div><div class="g-group"><div class="g-group-h">여름 성수기 예약 <span class="g-tag">추첨</span></div><ul class="g-list"><li>일부 기간 추첨 방식으로 운영</li><li>접수: 5월 초 ~ 중순</li><li>발표: 5월 중순 이후</li><li>1차 추첨 예약 이후 잔여 객실에 한해 추가 예약 진행</li><li>e-HR 신청은 상시 가능하나, 예약 반영은 한화리조트 일정에 따라 진행</li></ul></div><div class="g-group"><div class="g-group-h">업그레이드 객실</div><ul class="g-list"><li>대상: 스위트 · 프리미엄 · 로얄</li><li>이용일 기준 1개월 전부터 예약 가능</li><li>잔여 객실에 한해 예약 가능</li></ul></div></div></div></section><section class="g-card"><div class="g-num">3</div><div class="g-body"><h3>예약 진행 절차</h3><ol class="g-steps"><li>신청서 접수 후 순차적으로 예약 진행</li><li>객실 확보 시 예약 확정 <span class="muted">(알림톡 및 메일 안내)</span></li><li>객실 마감 시 <b>대기예약</b>으로 진행 — 순번 도래 시 개별 안내, 24시간 내 회신 시 예약 확정</li></ol></div></section><section class="g-card"><div class="g-num">4</div><div class="g-body"><h3>이용 시 유의사항</h3><ul class="g-list"><li>예약은 신청 순서 및 업무 일정에 따라 순차적으로 진행됩니다.</li><li>성수기 예약은 추첨 후 잔여 객실에 대해 추가 예약이 진행됩니다.</li><li>업그레이드 객실은 사전 확보가 불가하며, 잔여 객실 기준으로 운영됩니다.</li><li>인기 지역 및 주말은 조기 마감될 수 있습니다.</li><li>회원권 구좌 사용 가능 횟수 소진 시 예약이 제한될 수 있습니다.</li><li>e-HR 신청은 상시 가능하나, 실제 예약은 한화리조트 운영 일정에 따라 진행됩니다.</li></ul></div></section><section class="g-card"><div class="g-num">5</div><div class="g-body"><h3>선결제 콘도</h3><p class="g-lead">대상: 더플라자 호텔 · 브리드 호텔 양양 · 마티에 오시리아</p><ul class="g-list"><li>e-HR 신청서 확인 후 객실 확보 시 별도 안내</li><li>카카오톡 결제창 발송</li><li>결제 완료 시 예약 확정</li></ul></div></section><section class="g-card"><div class="g-num">6</div><div class="g-body"><h3>체크인 안내</h3><ul class="g-list"><li>예약 확정 시 알림톡에 예약번호 안내</li><li>e-HR 신청서에서도 예약번호 확인 가능</li><li>체크인 시 예약번호 제시</li></ul></div></section><section class="g-card"><div class="g-num">7</div><div class="g-body"><h3>조식 안내</h3><p class="g-lead">조식은 <b>콘도 예약과 별도</b>로, 투숙객이 리조트에 <b>직접 예약·결제</b>합니다. <b class="bf-tag pre" style="vertical-align:baseline">사전예약</b>은 미리 신청, <b class="bf-tag" style="vertical-align:baseline">체크인 시 예약</b>은 현장 신청입니다. 조식 예약·문의는 <b>각 리조트로 직접</b> 연락해주세요. (금액 변동 가능 · 그 외 리조트는 조식 미제공 또는 현장 문의)</p><ul class="g-list bf-list"><li><b>경주 에톤</b> — 온라인 회원조식 24,000원 <span class="bf-tag">체크인 시 예약</span> <span class="bf-tel">📞 054-777-8900</span></li><li><b>경주 담톤</b> — 온라인 회원조식 24,000원 <span class="bf-tag">체크인 시 예약</span> <span class="bf-tel">📞 054-777-8400</span></li><li><b>제주</b> — 온라인 회원조식 24,000원 <span class="bf-tag">체크인 시 예약</span> <span class="bf-tel">📞 064-725-9000</span></li><li><b>여수 벨메르</b> — 온라인 조식(대인) 28,000원 <span class="bf-tag pre">사전예약</span> <span class="bf-tel">📞 061-924-1500</span></li><li><b>브리드호텔 양양</b> — 조식플래터 18,400원 / 심플 13,600원 / 키즈 9,600원 <span class="bf-tag pre">사전예약</span> <span class="bf-tel">📞 033-942-5500</span></li><li><b>해운대</b> — 온라인 회원조식 26,400원 <span class="bf-tag">체크인 시 예약</span> <span class="bf-tel">📞 051-749-5500</span></li><li><b>대천 파로스</b> — 온라인 회원조식 24,000원 <span class="bf-tag">체크인 시 예약</span> <span class="bf-tel">📞 041-931-5500</span></li></ul></div></section><section class="g-card g-faq"><div class="g-num">Q</div><div class="g-body"><h3>자주 묻는 질문</h3><details><summary>언제 신청하면 되나요?</summary><p>이용일 기준 약 2개월 전부터 신청 가능하며, 순차적으로 예약 진행됩니다.</p></details><details><summary>신청하면 바로 확정되나요?</summary><p>접수된 신청서를 기준으로 순차적으로 예약 진행 후 확정 안내드립니다.</p></details><details><summary>대기예약이란?</summary><p>예약 마감 시 대기예약으로 전환되며, 취소 발생 시 우선순위로 예약 진행됩니다.</p></details><details><summary>대기예약 확정 여부는 어떻게 아나요?</summary><p>선예약자 취소 시 확정 가능하며, 대기 순번은 e-HR 비고란에서 확인 가능합니다.</p></details></div></section><section class="g-contact"><div class="g-contact-label">문의</div><div class="g-contact-main">OK저축은행 인사팀</div><span class="g-contact-mail">문의는 인사팀으로 부탁드립니다.</span></section><p class="g-updated">안내문 기준일: 2026-04-24 · 출처: 복리후생 한화리조트 콘도 이용 안내</p></div>
+    <div class="guide"><section class="g-card"><div class="g-num">1</div><div class="g-body"><h3>객실 이용 기준</h3><ul class="g-list"><li>기본 객실: <b>디럭스</b></li><li>업그레이드 객실: <b>스위트 · 프리미엄 · 로얄</b> <span class="muted">(잔여 객실 시)</span></li></ul></div></section><section class="g-card"><div class="g-num">2</div><div class="g-body"><h3>예약 신청 기준</h3><p class="g-lead">콘도 예약은 예약 유형에 따라 신청 시점이 다릅니다.</p><div class="g-groups"><div class="g-group"><div class="g-group-h">일반 예약</div><ul class="g-list"><li>이용일 기준 약 2개월 전부터 예약 가능</li><li>예약 오픈 이후 순차적으로 예약 진행</li></ul></div><div class="g-group"><div class="g-group-h">여름 성수기 예약 <span class="g-tag">추첨</span></div><ul class="g-list"><li>일부 기간 추첨 방식으로 운영</li><li>접수: 5월 초 ~ 중순</li><li>발표: 5월 중순 이후</li><li>1차 추첨 예약 이후 잔여 객실에 한해 추가 예약 진행</li><li>e-HR 신청은 상시 가능하나, 예약 반영은 한화리조트 일정에 따라 진행</li></ul></div><div class="g-group"><div class="g-group-h">업그레이드 객실</div><ul class="g-list"><li>대상: 스위트 · 프리미엄 · 로얄</li><li>이용일 기준 1개월 전부터 예약 가능</li><li>잔여 객실에 한해 예약 가능</li></ul></div></div></div></section><section class="g-card"><div class="g-num">3</div><div class="g-body"><h3>예약 진행 절차</h3><ol class="g-steps"><li>신청서 접수 후 순차적으로 예약 진행</li><li>객실 확보 시 예약 확정 <span class="muted">(알림톡 및 메일 안내)</span></li><li>객실 마감 시 <b>대기예약</b>으로 진행 — 순번 도래 시 개별 안내, 24시간 내 회신 시 예약 확정</li></ol></div></section><section class="g-card"><div class="g-num">4</div><div class="g-body"><h3>이용 시 유의사항</h3><ul class="g-list"><li>예약은 신청 순서 및 업무 일정에 따라 순차적으로 진행됩니다.</li><li>성수기 예약은 추첨 후 잔여 객실에 대해 추가 예약이 진행됩니다.</li><li>업그레이드 객실은 사전 확보가 불가하며, 잔여 객실 기준으로 운영됩니다.</li><li>인기 지역 및 주말은 조기 마감될 수 있습니다.</li><li>회원권 구좌 사용 가능 횟수 소진 시 예약이 제한될 수 있습니다.</li><li>e-HR 신청은 상시 가능하나, 실제 예약은 한화리조트 운영 일정에 따라 진행됩니다.</li></ul></div></section><section class="g-card"><div class="g-num">5</div><div class="g-body"><h3>선결제 콘도</h3><p class="g-lead">대상: 더플라자 호텔 · 브리드 호텔 양양 · 마티에 오시리아</p><ul class="g-list"><li>e-HR 신청서 확인 후 객실 확보 시 별도 안내</li><li>카카오톡 결제창 발송</li><li>결제 완료 시 예약 확정</li><li><b>그 외 콘도</b>는 체크아웃 시 현장에서 결제합니다.</li></ul></div></section><section class="g-card"><div class="g-num">6</div><div class="g-body"><h3>체크인 안내</h3><ul class="g-list"><li>예약 확정 시 알림톡에 예약번호 안내</li><li>e-HR 신청서에서도 예약번호 확인 가능</li><li>체크인 시 예약번호 제시</li></ul></div></section><section class="g-card"><div class="g-num">7</div><div class="g-body"><h3>조식 안내</h3><p class="g-lead">조식은 <b>콘도 예약과 별도</b>로, 투숙객이 리조트에 <b>직접 예약·결제</b>합니다. <b class="bf-tag pre" style="vertical-align:baseline">사전예약</b>은 미리 신청, <b class="bf-tag" style="vertical-align:baseline">체크인 시 예약</b>은 현장 신청입니다. 조식 예약·문의는 <b>각 리조트로 직접</b> 연락해주세요. (금액 변동 가능 · 그 외 리조트는 조식 미제공 또는 현장 문의)</p><ul class="g-list bf-list"><li><b>경주 에톤</b> — 온라인 회원조식 24,000원 <span class="bf-tag">체크인 시 예약</span> <span class="bf-tel">📞 054-777-8900</span></li><li><b>경주 담톤</b> — 온라인 회원조식 24,000원 <span class="bf-tag">체크인 시 예약</span> <span class="bf-tel">📞 054-777-8400</span></li><li><b>제주</b> — 온라인 회원조식 24,000원 <span class="bf-tag">체크인 시 예약</span> <span class="bf-tel">📞 064-725-9000</span></li><li><b>여수 벨메르</b> — 온라인 조식(대인) 28,000원 <span class="bf-tag pre">사전예약</span> <span class="bf-tel">📞 061-924-1500</span></li><li><b>브리드호텔 양양</b> — 조식플래터 18,400원 / 심플 13,600원 / 키즈 9,600원 <span class="bf-tag pre">사전예약</span> <span class="bf-tel">📞 033-942-5500</span></li><li><b>해운대</b> — 온라인 회원조식 26,400원 <span class="bf-tag">체크인 시 예약</span> <span class="bf-tel">📞 051-749-5500</span></li><li><b>대천 파로스</b> — 온라인 회원조식 24,000원 <span class="bf-tag">체크인 시 예약</span> <span class="bf-tel">📞 041-931-5500</span></li></ul></div></section><section class="g-card g-faq"><div class="g-num">Q</div><div class="g-body"><h3>자주 묻는 질문</h3><details><summary>언제 신청하면 되나요?</summary><p>이용일 기준 약 2개월 전부터 신청 가능하며, 순차적으로 예약 진행됩니다.</p></details><details><summary>신청하면 바로 확정되나요?</summary><p>접수된 신청서를 기준으로 순차적으로 예약 진행 후 확정 안내드립니다.</p></details><details><summary>대기예약이란?</summary><p>예약 마감 시 대기예약으로 전환되며, 취소 발생 시 우선순위로 예약 진행됩니다.</p></details><details><summary>대기예약 확정 여부는 어떻게 아나요?</summary><p>선예약자 취소 시 확정 가능하며, 대기 순번은 e-HR 비고란에서 확인 가능합니다.</p></details></div></section><section class="g-contact"><div class="g-contact-label">문의</div><div class="g-contact-main">OK저축은행 인사팀</div><span class="g-contact-mail">문의는 인사팀으로 부탁드립니다.</span></section><p class="g-updated">안내문 기준일: 2026-04-24 · 출처: 복리후생 한화리조트 콘도 이용 안내</p></div>
   </div>
 
   <div class="foot" id="foot"></div>
@@ -526,11 +530,16 @@ document.getElementById('tk-btn').addEventListener('click',()=>{
       '<div class="tk-meta">'+esc(r.name)+'님 · '+esc(r.resort)+' · '+esc(r.checkin)+' · '+esc(r.nights)+' · '+esc(r.roomType||'-')+' · '+esc(r.persons)+'인</div>'+
       (r.wait?'<div class="tk-wait">대기번호 <b>'+esc(r.wait)+'</b></div>':'')+
       (r.booking?'<div class="tk-wait">예약번호 <b>'+esc(r.booking)+'</b></div>':'')+
+      (r.memo?'<div class="tk-memo"><b>관리자 비고</b> '+esc(r.memo)+'</div>':'')+
       (r.reason?'<div class="tk-reason"><b>반려사유</b> '+esc(r.reason)+'</div>':'')+'</div>').join('');
   }).catch(()=>{ box.innerHTML='<div class="tk-card err">조회 실패(네트워크/차단).</div>'; });
 });
 
 // 관리자: 페이지 안에서 신청 목록 조회/상태변경 (구글 시트 안 열고)
+let ADMIN_ROWS=[], ADMIN_STATUSES=[], ADMIN_KEY='';
+function statusColor(s){ return {'접수':'#8a8079','승인':'#3b6ef0','반려':'#d9483a','진행중':'#c9a14a','대기':'#9b7bb8','예약완료':'#2f9e6f','취소':'#b6bac6'}[s]||'#8a8079'; }
+function fmtDT(s){ if(!s) return ''; const d=new Date(s); if(isNaN(d.getTime())) return String(s).slice(0,10); const p=n=>String(n).padStart(2,'0'); return (d.getMonth()+1)+'/'+d.getDate()+' '+p(d.getHours())+':'+p(d.getMinutes()); }
+
 function openAdmin(){
   if(!APP_READY){ alert('신청 기능이 아직 설정되지 않았습니다.'); return; }
   const key = sessionStorage.getItem('adminKey') || prompt('관리자 암호를 입력하세요');
@@ -545,42 +554,60 @@ function loadAdmin(key){
   const card=document.getElementById('modalCard');
   fetch(SUBMIT_URL+'?action=list&key='+encodeURIComponent(key)).then(r=>r.json()).then(res=>{
     if(!res||!res.ok){ sessionStorage.removeItem('adminKey'); var s=card.querySelector('.md-sum'); if(s) s.textContent='암호 오류 또는 접근 불가'+(res&&res.error?' ('+res.error+')':''); return; }
-    sessionStorage.setItem('adminKey', key); renderAdmin(res, key);
+    sessionStorage.setItem('adminKey', key); ADMIN_ROWS=res.rows||[]; ADMIN_STATUSES=res.statuses||[]; ADMIN_KEY=key; renderAdmin();
   }).catch(err=>{ var s=card.querySelector('.md-sum'); if(s) s.textContent='불러오기 실패(네트워크 차단 가능): '+err; });
 }
-function renderAdmin(res, key){
+function renderAdmin(){
   const card=document.getElementById('modalCard'); card.classList.add('wide');
-  const body=res.rows.map(r=>{
-    const opts=res.statuses.map(s=>'<option'+(s===r.status?' selected':'')+'>'+s+'</option>').join('');
-    return '<tr>'+
-      '<td><select class="ad-st">'+opts+'</select></td>'+
+  const filterOpts='<option value="">전체</option>'+ADMIN_STATUSES.map(s=>'<option>'+s+'</option>').join('');
+  card.innerHTML='<div class="modal-head"><div class="md-date">신청 관리 <span id="adCount"></span></div><button class="md-close">×</button></div>'+
+    '<div class="ad-bar"><label>상태 <select id="adFilter">'+filterOpts+'</select></label>'+
+      '<label>정렬 <select id="adSort"><option value="new">신청일 최신순</option><option value="old">신청일 오래된순</option><option value="checkin">이용일(체크인)순</option></select></label></div>'+
+    '<div class="scroll"><table><thead><tr><th>상태</th><th>신청일</th><th>지점 / 일정 / 신청번호</th><th>신청자</th><th>인원</th><th>대기번호</th><th>예약번호</th><th>관리자 비고</th><th>반려사유</th><th>관리</th></tr></thead><tbody id="adBody"></tbody></table></div>';
+  card.querySelector('.md-close').addEventListener('click',closeDetail);
+  card.querySelector('#adFilter').addEventListener('change',drawAdminRows);
+  card.querySelector('#adSort').addEventListener('change',drawAdminRows);
+  drawAdminRows();
+}
+function drawAdminRows(){
+  const card=document.getElementById('modalCard');
+  const filter=card.querySelector('#adFilter').value, sort=card.querySelector('#adSort').value;
+  let rows=ADMIN_ROWS.filter(r=>!filter||r.status===filter);
+  rows=rows.slice().sort((a,b)=>{
+    if(sort==='checkin') return String(a.checkin).localeCompare(String(b.checkin));
+    const c=String(b.submittedAt).localeCompare(String(a.submittedAt));
+    return sort==='old'?-c:c;
+  });
+  card.querySelector('#adCount').textContent='('+rows.length+(filter?' / 전체 '+ADMIN_ROWS.length:'')+'건)';
+  const body=rows.map(r=>
+    '<tr data-row="'+r.row+'">'+
+      '<td style="border-left:5px solid '+statusColor(r.status)+'"><select class="ad-st">'+ADMIN_STATUSES.map(s=>'<option'+(s===r.status?' selected':'')+'>'+s+'</option>').join('')+'</select></td>'+
+      '<td class="prsn" style="white-space:nowrap">'+fmtDT(r.submittedAt)+'</td>'+
+      '<td><b>'+esc(r.resort)+'</b><br><span class="prsn">'+esc(r.checkin)+' · '+esc(r.nights)+' · '+esc(r.roomType)+'</span><br><span class="ad-ref">'+esc(r.ref)+'</span>'+(r.note?'<br><span class="prsn">📝 '+esc(r.note)+'</span>':'')+'</td>'+
+      '<td>'+esc(r.name)+'<br><span class="prsn">'+esc(r.dept)+' · 사번 '+esc(r.empno)+'<br>'+esc(r.phone)+'</span></td>'+
+      '<td>'+esc(r.persons)+'인</td>'+
       '<td><input class="ad-wt" value="'+esc(r.wait)+'" placeholder="-"></td>'+
       '<td><input class="ad-bk" value="'+esc(r.booking)+'" placeholder="예약완료 시"></td>'+
+      '<td><input class="ad-memo" value="'+esc(r.memo)+'" placeholder="직원에게 표시"></td>'+
       '<td><input class="ad-rs" value="'+esc(r.reason)+'" placeholder="반려 시 사유"></td>'+
-      '<td><b>'+esc(r.resort)+'</b><br><span class="prsn">'+esc(r.checkin)+' · '+esc(r.nights)+' · '+esc(r.roomType)+'</span><br><span class="ad-ref">'+esc(r.ref)+'</span></td>'+
-      '<td>'+esc(r.name)+'<br><span class="prsn">'+esc(r.dept)+' · 사번 '+esc(r.empno)+'<br>'+esc(r.phone)+'</span></td>'+
-      '<td>'+esc(r.persons)+'인</td><td class="prsn">'+esc(r.note)+'</td>'+
-      '<td><div class="ad-actions"><button class="ad-save" data-row="'+r.row+'">저장</button>'+
-      '<button class="ad-del" data-row="'+r.row+'">삭제</button></div></td></tr>';
-  }).join('');
-  card.innerHTML='<div class="modal-head"><div class="md-date">신청 관리 ('+res.rows.length+'건)</div><button class="md-close">×</button></div>'+
-    '<div class="scroll"><table><thead><tr><th>상태</th><th>대기번호</th><th>예약번호</th><th>반려사유</th><th>지점 / 일정 / 신청번호</th><th>신청자</th><th>인원</th><th>비고</th><th>관리</th></tr></thead><tbody>'+
-    (body||'<tr><td colspan="9" class="prsn" style="padding:24px;text-align:center">신청 내역이 없습니다.</td></tr>')+'</tbody></table></div>';
-  card.querySelector('.md-close').addEventListener('click',closeDetail);
-  card.querySelectorAll('.ad-save').forEach(btn=>btn.addEventListener('click',()=>{
-    const tr=btn.closest('tr');
-    const b=new URLSearchParams({action:'saveRow', key:key, row:btn.dataset.row,
-      status: tr.querySelector('.ad-st').value, wait: tr.querySelector('.ad-wt').value,
-      reason: tr.querySelector('.ad-rs').value, booking: tr.querySelector('.ad-bk').value });
+      '<td><div class="ad-actions"><button class="ad-save">저장</button><button class="ad-del">삭제</button></div></td></tr>'
+  ).join('');
+  const tb=card.querySelector('#adBody');
+  tb.innerHTML=body||'<tr><td colspan="10" class="prsn" style="padding:24px;text-align:center">해당 조건의 신청이 없습니다.</td></tr>';
+  tb.querySelectorAll('.ad-st').forEach(sel=>sel.addEventListener('change',()=>{ sel.closest('tr').querySelector('td').style.borderLeftColor=statusColor(sel.value); }));
+  tb.querySelectorAll('.ad-save').forEach(btn=>btn.addEventListener('click',()=>{
+    const tr=btn.closest('tr'); const rowNo=tr.dataset.row;
+    const vals={ status:tr.querySelector('.ad-st').value, wait:tr.querySelector('.ad-wt').value, booking:tr.querySelector('.ad-bk').value, memo:tr.querySelector('.ad-memo').value, reason:tr.querySelector('.ad-rs').value };
+    const b=new URLSearchParams(Object.assign({action:'saveRow',key:ADMIN_KEY,row:rowNo},vals));
     btn.disabled=true; btn.textContent='저장 중…';
-    const ok=()=>{ btn.textContent='저장됨 ✓'; setTimeout(()=>{btn.disabled=false;btn.textContent='저장';},1500); };
+    const ok=()=>{ const r=ADMIN_ROWS.find(x=>String(x.row)===String(rowNo)); if(r) Object.assign(r,vals); btn.textContent='저장됨 ✓'; setTimeout(()=>{btn.disabled=false;btn.textContent='저장';},1400); };
     fetch(SUBMIT_URL,{method:'POST',body:b}).then(ok).catch(ok);
   }));
-  card.querySelectorAll('.ad-del').forEach(btn=>btn.addEventListener('click',()=>{
+  tb.querySelectorAll('.ad-del').forEach(btn=>btn.addEventListener('click',()=>{
     if(!confirm('이 신청을 삭제할까요? 되돌릴 수 없습니다.')) return;
-    const b=new URLSearchParams({action:'deleteRow', key:key, row:btn.dataset.row});
+    const tr=btn.closest('tr'); const b=new URLSearchParams({action:'deleteRow',key:ADMIN_KEY,row:tr.dataset.row});
     btn.disabled=true; btn.textContent='삭제 중…';
-    const reload=()=>setTimeout(()=>loadAdmin(key),700);
+    const reload=()=>setTimeout(()=>loadAdmin(ADMIN_KEY),700);
     fetch(SUBMIT_URL,{method:'POST',body:b}).then(reload).catch(reload);
   }));
 }
