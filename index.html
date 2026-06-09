@@ -116,6 +116,7 @@
   .modal-card.wide{max-width:1080px;}
   .ad-st,.ad-wt,.ad-bk,.ad-rs,.ad-memo{font-size:13px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-family:inherit;}
   .ad-wt{width:60px;text-align:center;} .ad-rs{width:140px;} .ad-bk{width:120px;} .ad-memo{width:150px;}
+  .ad-trip{min-width:184px;} .ad-trip .prsn,.ad-who .prsn{line-height:1.5;margin-top:1px;} .ad-who{min-width:132px;}
   .ad-bar{display:flex;gap:16px;align-items:center;padding:12px 22px;border-bottom:1px solid var(--line);font-size:13px;font-weight:700;color:var(--ink2);flex-wrap:wrap;}
   .ad-bar select{font-size:13px;font-weight:600;padding:7px 10px;}
   .tk-memo{margin-top:10px;font-size:13.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;}
@@ -527,7 +528,7 @@ document.getElementById('tk-btn').addEventListener('click',()=>{
   fetch(SUBMIT_URL+'?action=track&empno='+encodeURIComponent(emp)+'&phone4='+encodeURIComponent(p4)).then(r=>r.json()).then(res=>{
     if(!res||!res.ok){ box.innerHTML='<div class="tk-card err">일치하는 신청이 없습니다. 사번·휴대폰 뒷 4자리를 확인해주세요.</div>'; return; }
     box.innerHTML=res.rows.map(r=>'<div class="tk-card"><div class="tk-status">'+esc(r.status)+'</div>'+
-      '<div class="tk-meta">'+esc(r.name)+'님 · '+esc(r.resort)+' · '+esc(r.checkin)+' · '+esc(r.nights)+' · '+esc(r.roomType||'-')+' · '+esc(r.persons)+'인</div>'+
+      '<div class="tk-meta">'+esc(r.name)+'님 · '+esc(r.resort)+' · '+fmtD(r.checkin)+' · '+esc(r.nights)+' · '+esc(r.roomType||'-')+' · '+esc(r.persons)+'인</div>'+
       (r.wait?'<div class="tk-wait">대기번호 <b>'+esc(r.wait)+'</b></div>':'')+
       (r.booking?'<div class="tk-wait">예약번호 <b>'+esc(r.booking)+'</b></div>':'')+
       (r.memo?'<div class="tk-memo"><b>관리자 비고</b> '+esc(r.memo)+'</div>':'')+
@@ -539,6 +540,7 @@ document.getElementById('tk-btn').addEventListener('click',()=>{
 let ADMIN_ROWS=[], ADMIN_STATUSES=[], ADMIN_KEY='';
 function statusColor(s){ return {'접수':'#8a8079','승인':'#3b6ef0','반려':'#d9483a','진행중':'#c9a14a','대기':'#9b7bb8','예약완료':'#2f9e6f','취소':'#b6bac6'}[s]||'#8a8079'; }
 function fmtDT(s){ if(!s) return ''; const d=new Date(s); if(isNaN(d.getTime())) return String(s).slice(0,10); const p=n=>String(n).padStart(2,'0'); return (d.getMonth()+1)+'/'+d.getDate()+' '+p(d.getHours())+':'+p(d.getMinutes()); }
+function fmtD(s){ if(!s) return ''; if(/^d{4}-d{2}-d{2}$/.test(String(s))) return String(s); const d=new Date(s); if(isNaN(d.getTime())) return String(s).slice(0,10); const p=n=>String(n).padStart(2,'0'); const w=['일','월','화','수','목','금','토'][d.getDay()]; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'('+w+')'; }
 
 function openAdmin(){
   if(!APP_READY){ alert('신청 기능이 아직 설정되지 않았습니다.'); return; }
@@ -583,8 +585,8 @@ function drawAdminRows(){
     '<tr data-row="'+r.row+'">'+
       '<td style="border-left:5px solid '+statusColor(r.status)+'"><select class="ad-st">'+ADMIN_STATUSES.map(s=>'<option'+(s===r.status?' selected':'')+'>'+s+'</option>').join('')+'</select></td>'+
       '<td class="prsn" style="white-space:nowrap">'+fmtDT(r.submittedAt)+'</td>'+
-      '<td><b>'+esc(r.resort)+'</b><br><span class="prsn">'+esc(r.checkin)+' · '+esc(r.nights)+' · '+esc(r.roomType)+'</span><br><span class="ad-ref">'+esc(r.ref)+'</span>'+(r.note?'<br><span class="prsn">📝 '+esc(r.note)+'</span>':'')+'</td>'+
-      '<td>'+esc(r.name)+'<br><span class="prsn">'+esc(r.dept)+' · 사번 '+esc(r.empno)+'<br>'+esc(r.phone)+'</span></td>'+
+      '<td class="ad-trip"><b>'+esc(r.resort)+'</b><div class="prsn">'+fmtD(r.checkin)+' · '+esc(r.nights)+'</div><div class="prsn">'+esc(r.roomType)+'</div><div class="ad-ref">'+esc(r.ref)+'</div>'+(r.note?'<div class="prsn">📝 '+esc(r.note)+'</div>':'')+'</td>'+
+      '<td class="ad-who">'+esc(r.name)+'<div class="prsn">'+esc(r.dept)+' · 사번 '+esc(r.empno)+'</div><div class="prsn">'+esc(r.phone)+'</div></td>'+
       '<td>'+esc(r.persons)+'인</td>'+
       '<td><input class="ad-wt" value="'+esc(r.wait)+'" placeholder="-"></td>'+
       '<td><input class="ad-bk" value="'+esc(r.booking)+'" placeholder="예약완료 시"></td>'+
