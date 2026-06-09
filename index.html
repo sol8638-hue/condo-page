@@ -110,6 +110,14 @@
   .badge-y{color:var(--green);font-weight:700;font-size:12px;white-space:nowrap;}
   .badge-n{color:var(--gray);font-size:12px;white-space:nowrap;}
   .r-price{text-align:right;font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap;}
+  .r-link{color:var(--brown);font-weight:700;text-decoration:none;border-bottom:1px dashed #c9c2bd;}
+  .r-link:hover{color:var(--brand);border-color:var(--brand);}
+  .md-roomhint{font-size:12px;color:var(--ink2);padding:12px 22px 0;margin:0;}
+  .md-hanwha{display:block;margin:8px 22px 0;padding:12px;text-align:center;border:1px solid var(--line);border-radius:12px;
+    color:var(--brown);font-weight:800;font-size:14px;text-decoration:none;background:#faf9f8;}
+  .md-hanwha:hover{background:var(--bgray);}
+  .rate-link{color:var(--brand);font-weight:700;text-decoration:none;}
+  .rate-link:hover{text-decoration:underline;}
   .md-apply{display:block;width:calc(100% - 44px);margin:14px 22px 4px;padding:13px;border:none;border-radius:12px;cursor:pointer;
     background:linear-gradient(135deg,var(--brown),var(--brown2));color:#fff;font-size:14.5px;font-weight:800;}
   .md-apply:hover{filter:brightness(1.06);}
@@ -366,9 +374,10 @@ function renderRate(code){
       cols.map(c=>{const v=c.valueOf(rm.cd); return '<td class="price">'+(v!=null?won(v):'<span class="none">-</span>')+'</td>';}).join('')+'</tr>';
   }
   box.innerHTML='<div class="scroll"><table class="rate-table"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>';
-  const bf=BREAKFAST[code];
+  const bf=BREAKFAST[code]; const roomUrl='https://www.hanwharesort.co.kr/irsweb/resort3/resort/rs_room.do?bp_cd='+code;
   document.getElementById('rateFoot').innerHTML='※ 법인회원(현지불) 기준 1박 객실료입니다. '+(mode==='group'?'같은 등급의 평일/준주말/주말/연휴로 묶어 표시.':'사이트 원본 시즌명으로 표시.')+
-    (bf?'<br>🍳 조식(별도): '+bf.price+' · '+bf.book+' · 📞 '+bf.tel:'');
+    (bf?'<br>🍳 조식(별도): '+bf.price+' · '+bf.book+' · 📞 '+bf.tel:'')+
+    '<br><a href="'+roomUrl+'" target="_blank" rel="noopener" class="rate-link">🔗 한화 홈페이지에서 객실 사진·상세 보기</a>';
 }
 
 function renderCal(code){
@@ -416,11 +425,12 @@ function openDetail(code,ds){
   const ok=info.rooms.filter(x=>x.possible==='Y');
   // 정렬: 예약가능 우선
   const rooms=info.rooms.slice().sort((a,b)=>(a.possible==='Y'?0:1)-(b.possible==='Y'?0:1));
+  const roomUrl='https://www.hanwharesort.co.kr/irsweb/resort3/resort/rs_room.do?bp_cd='+code;
   let rows='';
   for(const x of rooms){
     const m=rmMap[x.nm]||{}; const p=m.cd?priceFor(code,m.cd,info.season):null; const c=Math.min(Number(x.count),9);
     const avail=x.possible==='Y';
-    rows+='<tr class="'+(avail?'':'r-no')+'"><td class="r-nm">'+x.nm+(m.prsn?' <span class="prsn">'+m.prsn+'인</span>':'')+'</td>'+
+    rows+='<tr class="'+(avail?'':'r-no')+'"><td class="r-nm"><a href="'+roomUrl+'" target="_blank" rel="noopener" class="r-link">'+x.nm+' 🔗</a>'+(m.prsn?' <span class="prsn">'+m.prsn+'인</span>':'')+'</td>'+
       '<td class="r-price">'+(p!=null?won(p):'<span class="none">-</span>')+'</td>'+
       '<td>'+(avail?'<span class="badge-y">예약가능'+(c>0?' · 최대 '+c+'실':'')+'</span>':'<span class="badge-n">예약불가</span>')+'</td></tr>';
   }
@@ -434,6 +444,8 @@ function openDetail(code,ds){
       (BREAKFAST[code]?'🍳 조식(별도) '+BREAKFAST[code].price+' <span class="bf-tag'+(BREAKFAST[code].book==='사전예약'?' pre':'')+'">'+BREAKFAST[code].book+'</span> 📞'+BREAKFAST[code].tel+'<br>':'')+
       (ok.length>0?'예약가능 <b>'+ok.length+'타입</b>':'<b>이 날짜는 예약 가능한 객실이 없습니다.</b>')+'</div>'+
     '<table><thead><tr><th>객실타입</th><th class="r-price">1박 요금</th><th>예약</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+    '<p class="md-roomhint">💡 객실명을 누르면 한화 홈페이지에서 사진·상세를 볼 수 있어요.</p>'+
+    '<a class="md-hanwha" href="'+roomUrl+'" target="_blank" rel="noopener">🔗 한화리조트 홈페이지에서 객실 사진·상세 보기</a>'+
     '<button class="md-apply" id="md-apply">📝 이 날짜로 예약 신청</button>'+
     '<p class="foot" style="padding:12px 22px">※ 실수는 1회 예약 시 신청 가능한 최대 수량(사이트 기준 최대 9실)입니다. 조식은 콘도 예약과 별도로 리조트에 직접 예약·결제합니다.</p>';
   document.getElementById('modal').classList.add('open');
