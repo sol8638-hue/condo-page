@@ -1,0 +1,10 @@
+# Netlify 배포 설정 — 정적 사이트(빌드 없음), 루트 그대로 게시
+[build]
+  publish = "."
+  command = ""
+
+# 검색엔진 노출 차단 (HTML meta와 이중 안전장치)
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
