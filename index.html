@@ -329,12 +329,6 @@
   <div id="rate-view">
     <div class="controls">
       <label class="field">지점 <select id="resort"></select></label>
-      <label class="field" id="seasonModeWrap">시즌표시
-        <select id="seasonMode">
-          <option value="group">요일 묶음(정리)</option>
-          <option value="raw">사이트 원본</option>
-        </select>
-      </label>
       <div class="legend" id="legend"></div>
     </div>
     <div id="rate" class="panel"></div>
@@ -431,7 +425,7 @@ function parseSeason(s){
 function shortSeason(s){ return s?parseSeason(s).label:''; }
 
 function renderRate(code){
-  const mode=document.getElementById('seasonMode').value;
+  const mode='raw';
   const rooms=DATA.rooms[code]||[]; const rates=DATA.rates[code]||{};
   const box=document.getElementById('rate');
   const rawSet=new Set(); for(const cd in rates) for(const s in rates[cd]) rawSet.add(s);
@@ -571,7 +565,6 @@ const sel=document.getElementById('resort'), sel2=document.getElementById('resor
 DATA.resorts.forEach(r=>{ [sel,sel2].forEach(s=>{const o=document.createElement('option');o.value=r.code;o.textContent=r.name;s.appendChild(o);}); });
 sel.addEventListener('change',()=>{ sel2.value=sel.value; renderRate(sel.value); });
 sel2.addEventListener('change',()=>{ sel.value=sel2.value; renderCal(sel2.value); });
-document.getElementById('seasonMode').addEventListener('change',()=>renderRate(sel.value));
 
 const legendHtml=['극성수기:#9e3b2e','성수기:#cf6a3c','준성수기:#c9a14a','비수기:#5f9b78'].map(x=>{const i=x.lastIndexOf(':');const a=x.slice(0,i),b=x.slice(i+1);return '<span><span class="dot" style="background:'+b+'"></span>'+a+'</span>';}).join('');
 document.getElementById('legend').innerHTML=legendHtml;
