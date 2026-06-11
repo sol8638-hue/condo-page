@@ -458,7 +458,10 @@ function renderRate(code){
 }
 
 function renderCal(code){
-  const r=DATA.byResort[code]; const dates=Object.keys(r.dates).sort(); const box=document.getElementById('cal');
+  const r=DATA.byResort[code]; const box=document.getElementById('cal');
+  // 보는 사람의 '오늘' 기준으로 지난 날짜는 숨김
+  const _t=new Date(); const todayKey=''+_t.getFullYear()+String(_t.getMonth()+1).padStart(2,'0')+String(_t.getDate()).padStart(2,'0');
+  const dates=Object.keys(r.dates).filter(d=>d>=todayKey).sort();
   if(dates.length===0){ box.innerHTML='<div class="panel" style="padding:40px;text-align:center" class="none">예약 달력 데이터가 없습니다.</div>'; return; }
   const months={}; for(const d of dates){const m=d.slice(0,6); (months[m]=months[m]||[]).push(d);}
   const W=['일','월','화','수','목','금','토']; let html='';
@@ -472,6 +475,7 @@ function renderCal(code){
     for(let day=1;day<=dim;day++){
       const ds=m+String(day).padStart(2,'0'); const info=r.dates[ds];
       const dow=new Date(y,mo-1,day).getDay(); const dc=dow===0?'sun':dow===6?'sat':'';
+      if(ds<todayKey){ html+='<div class="cal-cell out"><div class="cd '+dc+'" style="opacity:.45">'+day+'</div></div>'; continue; }
       if(!info){ html+='<div class="cal-cell out"><div class="cd '+dc+'">'+day+'</div></div>'; continue; }
       const ok=info.rooms.filter(x=>x.possible==='Y');
       const detail=info.rooms.map(x=>{const c=Math.min(Number(x.count),9);return (x.possible==='Y'?'○ ':'× ')+x.nm+(c>0?' '+c+'실':'');}).join('&#10;');
