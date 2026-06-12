@@ -756,11 +756,29 @@ function drawAdminRows(){
   }));
 }
 
-const dt=new Date(DATA.scrapedAt);
-document.getElementById('foot').innerHTML='수집 시각: '+dt.toLocaleString('ko-KR')+' · 향후 '+DATA.days+'일 · 실시간과 다를 수 있으니 최종 예약은 담당자 확인 · <a href="#" id="adminLink" style="color:var(--ink2);text-decoration:underline">인사팀 관리자</a>';
-document.getElementById('adminLink').addEventListener('click',(e)=>{e.preventDefault();openAdmin();});
+function updateFoot(){
+  const d=new Date(DATA.scrapedAt);
+  document.getElementById('foot').innerHTML='수집 시각: '+d.toLocaleString('ko-KR')+' · 향후 '+DATA.days+'일 · 실시간과 다를 수 있으니 최종 예약은 담당자 확인 · <a href="#" id="adminLink" style="color:var(--ink2);text-decoration:underline">인사팀 관리자</a>';
+  document.getElementById('adminLink').addEventListener('click',(e)=>{e.preventDefault();openAdmin();});
+}
+updateFoot();
 renderRate(DATA.resorts[0].code);
 renderCal(DATA.resorts[0].code);
+
+// 잔여객실(달력) 데이터는 Supabase에서 실시간으로 불러온다.
+// (페이지에 내장된 데이터는 마지막 배포 시점 기준의 fallback일 뿐, 30분 갱신은 DB로 흐른다)
+(function loadLiveAvailability(){
+  if(!APP_READY) return;
+  fetch(SB_REST+'/site_data?key=eq.availability&select=data',{headers:{apikey:SB_KEY}})
+    .then(r=>r.ok?r.json():null).then(j=>{
+      const d=j&&j[0]&&j[0].data; if(!d||!d.byResort) return;
+      DATA.byResort=d.byResort;
+      if(d.scrapedAt) DATA.scrapedAt=d.scrapedAt;
+      if(d.days) DATA.days=d.days;
+      updateFoot();
+      renderCal((typeof sel2!=='undefined'&&sel2.value)||DATA.resorts[0].code);
+    }).catch(()=>{});
+})();
 </script>
 </body>
 </html>
