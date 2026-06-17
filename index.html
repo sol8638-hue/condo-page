@@ -763,7 +763,7 @@ function drawAdminRows(){
       '<td><input class="ad-bk" value="'+esc(r.booking_no)+'" placeholder="예약완료 시"></td>'+
       '<td><input class="ad-memo" value="'+esc(r.admin_memo)+'" placeholder="직원에게 표시"></td>'+
       '<td><input class="ad-rs" value="'+esc(r.reject_reason)+'" placeholder="반려 시 사유"></td>'+
-      '<td><div class="ad-actions"><button class="ad-save">저장</button><button class="ad-mail"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>안내메일</button><button class="ad-del">삭제</button></div></td></tr>'
+      '<td><div class="ad-actions"><button class="ad-save">저장</button><button class="ad-del">삭제</button><button class="ad-mail"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>메일발송</button></div></td></tr>'
   ).join('');
   const tb=card.querySelector('#adBody');
   tb.innerHTML=body||'<tr><td colspan="10" class="prsn" style="padding:24px;text-align:center">해당 조건의 신청이 없습니다.</td></tr>';
