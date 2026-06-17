@@ -419,13 +419,13 @@
     <div class="mail-field"><span class="mail-lab">받는사람</span> <span id="mailTo" class="mail-val"></span></div>
     <div class="mail-field"><span class="mail-lab">제목</span> <span id="mailSubj" class="mail-val"></span></div>
     <textarea id="mailBody" rows="12" class="mail-ta" spellcheck="false"></textarea>
-    <button class="md-apply" id="mailSend" style="width:100%;margin:12px 0 0">📤 발송 대기열에 추가</button>
+    <button class="md-apply" id="mailSend" style="width:100%;margin:12px 0 0">📨 발송</button>
     <p class="apply-msg" id="mailSendMsg" style="min-height:18px;margin:6px 0 0"></p>
     <div class="mail-actions">
       <button class="md-hanwha" id="mailCopy">📋 복사</button>
       <a class="md-hanwha" id="mailOpen" href="#" target="_blank" rel="noopener">✉️ 메일 앱으로 열기</a>
     </div>
-    <p class="foot" style="padding:10px 2px 0"><b>발송 대기열에 추가</b>를 누른 뒤, PC에서 <b>send-mail.cmd</b>를 더블클릭하면 대기 중인 안내메일이 한꺼번에 발송됩니다(인사팀 지메일에서). 또는 <b>복사</b>해서 회사 웹메일에 직접 붙여넣어도 됩니다.</p>
+    <p class="foot" style="padding:10px 2px 0"><b>발송</b>을 누르면 <b>PC가 1분 내 자동으로 전송</b>합니다(인사팀 지메일에서, PC 켜져 있을 때). 또는 <b>복사</b>해서 회사 웹메일에 직접 붙여넣어도 됩니다.</p>
   </div>
 </div></div>
 <div id="imgPreview"><img alt="객실 미리보기"><div class="ip-cap"></div></div>
@@ -836,15 +836,15 @@ function openMailPop(r){
       .catch(()=>{ const t=document.getElementById('mailBody'); t.focus(); t.select(); copyBtn.textContent='본문 선택됨 (Ctrl+C)'; });
   };
   const sendBtn=document.getElementById('mailSend'), sendMsg=document.getElementById('mailSendMsg');
-  sendMsg.textContent=''; sendMsg.className='apply-msg'; sendBtn.disabled=false; sendBtn.textContent='📤 발송 대기열에 추가';
+  sendMsg.textContent=''; sendMsg.className='apply-msg'; sendBtn.disabled=false; sendBtn.textContent='📨 발송';
   sendBtn.onclick=()=>{
-    if(!confirm(m.to+' 으로 보낼 안내메일을 발송 대기열에 추가할까요?')) return;
-    sendBtn.disabled=true; sendBtn.textContent='추가 중…';
-    const reset=()=>{ sendBtn.disabled=false; sendBtn.textContent='📤 발송 대기열에 추가'; };
+    if(!confirm(m.to+' 으로 안내메일을 발송할까요?')) return;
+    sendBtn.disabled=true; sendBtn.textContent='발송 중…';
+    const reset=()=>{ sendBtn.disabled=false; sendBtn.textContent='📨 발송'; };
     sbRpc('queue_mail',{p_key:ADMIN_KEY, p_to:m.to, p_subj:document.getElementById('mailSubj').textContent, p_body:document.getElementById('mailBody').value, p_app_id:r.id})
-      .then(res=>{ if(res.ok){ sendMsg.className='apply-msg ok'; sendMsg.textContent='✅ 대기열에 추가됨 — PC에서 send-mail.cmd 실행 시 발송됩니다.'; sendBtn.textContent='대기열 추가됨 ✓'; }
-                   else { sendMsg.className='apply-msg err'; sendMsg.textContent='추가 실패 (권한/네트워크).'; reset(); } })
-      .catch(()=>{ sendMsg.className='apply-msg err'; sendMsg.textContent='추가 실패 (네트워크).'; reset(); });
+      .then(res=>{ if(res.ok){ sendMsg.className='apply-msg ok'; sendMsg.textContent='✅ 발송 요청 완료 — 잠시 후(1분 내) 전송됩니다.'; sendBtn.textContent='발송됨 ✓'; }
+                   else { sendMsg.className='apply-msg err'; sendMsg.textContent='발송 실패 (권한/네트워크).'; reset(); } })
+      .catch(()=>{ sendMsg.className='apply-msg err'; sendMsg.textContent='발송 실패 (네트워크).'; reset(); });
   };
   document.getElementById('mailPop').classList.add('open');
 }
