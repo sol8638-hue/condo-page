@@ -421,11 +421,7 @@
     <textarea id="mailBody" rows="12" class="mail-ta" spellcheck="false"></textarea>
     <button class="md-apply" id="mailSend" style="width:100%;margin:12px 0 0">📨 발송</button>
     <p class="apply-msg" id="mailSendMsg" style="min-height:18px;margin:6px 0 0"></p>
-    <div class="mail-actions">
-      <button class="md-hanwha" id="mailCopy">📋 복사</button>
-      <a class="md-hanwha" id="mailOpen" href="#" target="_blank" rel="noopener">✉️ 메일 앱으로 열기</a>
-    </div>
-    <p class="foot" style="padding:10px 2px 0"><b>발송</b>을 누르면 <b>PC가 1분 내 자동으로 전송</b>합니다(인사팀 지메일에서, PC 켜져 있을 때). 또는 <b>복사</b>해서 회사 웹메일에 직접 붙여넣어도 됩니다.</p>
+    <p class="foot" style="padding:8px 2px 0"><b>발송</b>을 누르면 <b>PC가 1분 내 자동으로 전송</b>합니다 (인사팀 지메일에서, PC 켜져 있을 때).</p>
   </div>
 </div></div>
 <div id="imgPreview"><img alt="객실 미리보기"><div class="ip-cap"></div></div>
@@ -827,14 +823,6 @@ function openMailPop(r){
   document.getElementById('mailTo').textContent=m.to;
   document.getElementById('mailSubj').textContent=m.subj;
   document.getElementById('mailBody').value=m.body;
-  const open=document.getElementById('mailOpen');
-  open.href='mailto:'+encodeURIComponent(m.to)+'?subject='+encodeURIComponent(m.subj)+'&body='+encodeURIComponent(m.body);
-  const copyBtn=document.getElementById('mailCopy'); copyBtn.textContent='📋 복사';
-  copyBtn.onclick=()=>{
-    const all='받는사람: '+m.to+'\n제목: '+m.subj+'\n\n'+document.getElementById('mailBody').value;
-    navigator.clipboard.writeText(all).then(()=>{ copyBtn.textContent='복사됨 ✓'; setTimeout(()=>copyBtn.textContent='📋 복사',1800); })
-      .catch(()=>{ const t=document.getElementById('mailBody'); t.focus(); t.select(); copyBtn.textContent='본문 선택됨 (Ctrl+C)'; });
-  };
   const sendBtn=document.getElementById('mailSend'), sendMsg=document.getElementById('mailSendMsg');
   sendMsg.textContent=''; sendMsg.className='apply-msg'; sendBtn.disabled=false; sendBtn.textContent='📨 발송';
   sendBtn.onclick=()=>{
