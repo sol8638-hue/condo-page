@@ -362,6 +362,7 @@
   .done-ok{width:100%;}
 
   .foot{margin-top:18px;font-size:12px;color:var(--ink3);line-height:1.75;}
+  .foot-badge{display:none;margin-left:4px;min-width:16px;height:16px;padding:0 4px;box-sizing:border-box;background:#e5443b;color:#fff;border-radius:9px;font-size:11px;font-weight:800;line-height:16px;text-align:center;vertical-align:1px;}
 
   @media (max-width:640px){
     .topbar-in{padding:12px 16px;}
@@ -704,7 +705,7 @@ function bindRoomHover(code){
     a.addEventListener('mouseleave',()=>{ pv.style.display='none'; });
   });
 }
-function closeDetail(){ document.getElementById('modal').classList.remove('open'); document.getElementById('modalCard').classList.remove('wide'); var pv=document.getElementById('imgPreview'); if(pv) pv.style.display='none'; document.querySelectorAll('.cal-cell.sel').forEach(c=>c.classList.remove('sel')); }
+function closeDetail(){ document.getElementById('modal').classList.remove('open'); document.getElementById('modalCard').classList.remove('wide'); var pv=document.getElementById('imgPreview'); if(pv) pv.style.display='none'; document.querySelectorAll('.cal-cell.sel').forEach(c=>c.classList.remove('sel')); if(typeof refreshAdminBadges==='function') refreshAdminBadges(); }
 
 const sel=document.getElementById('resort'), sel2=document.getElementById('resort2');
 DATA.resorts.forEach(r=>{ [sel,sel2].forEach(s=>{const o=document.createElement('option');o.value=r.code;o.textContent=r.name;s.appendChild(o);}); });
@@ -1260,13 +1261,21 @@ function buildInqMail(r, ans){
   return { to, subj, body:L.join('\n') };
 }
 
+function setBadge(id,n){ const el=document.getElementById(id); if(!el) return; if(n>0){ el.textContent=n>99?'99+':n; el.style.display='inline-block'; } else { el.style.display='none'; } }
+function refreshAdminBadges(){
+  const key=sessionStorage.getItem('adminKey');
+  if(!key||!APP_READY){ setBadge('adminBadge',0); setBadge('inqBadge',0); return; }
+  sbRpc('admin_counts',{p_key:key}).then(r=>r.ok?r.json():null).then(j=>{ if(!j) return; setBadge('adminBadge',j.apps||0); setBadge('inqBadge',j.inq||0); }).catch(()=>{});
+}
 function updateFoot(){
   const d=new Date(DATA.scrapedAt);
-  document.getElementById('foot').innerHTML='수집 시각: '+d.toLocaleString('ko-KR')+' · 향후 '+DATA.days+'일 · 실시간과 다를 수 있으니 최종 예약은 담당자 확인 · <a href="#" id="adminLink" style="color:var(--ink2);text-decoration:underline">인사팀 관리자</a> · <a href="#" id="inqAdminLink" style="color:var(--ink2);text-decoration:underline">문의 관리</a>';
+  document.getElementById('foot').innerHTML='수집 시각: '+d.toLocaleString('ko-KR')+' · 향후 '+DATA.days+'일 · 실시간과 다를 수 있으니 최종 예약은 담당자 확인 · <a href="#" id="adminLink" style="color:var(--ink2);text-decoration:underline">인사팀 관리자<span id="adminBadge" class="foot-badge"></span></a> · <a href="#" id="inqAdminLink" style="color:var(--ink2);text-decoration:underline">문의 관리<span id="inqBadge" class="foot-badge"></span></a>';
   document.getElementById('adminLink').addEventListener('click',(e)=>{e.preventDefault();openAdmin();});
   document.getElementById('inqAdminLink').addEventListener('click',(e)=>{e.preventDefault();openInquiryAdmin();});
+  refreshAdminBadges();
 }
 updateFoot();
+setInterval(refreshAdminBadges, 60000); // 관리자 로그인 상태면 미확인 건수 주기적 갱신
 renderRate(DATA.resorts[0].code);
 renderCal(DATA.resorts[0].code);
 
