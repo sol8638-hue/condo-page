@@ -209,9 +209,12 @@
   .ad-wt{width:42px;text-align:center;} .ad-rs{width:92px;} .ad-bk{width:78px;} .ad-memo{width:96px;} .ad-cfm{width:92px;}
   .cfm-same{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--ink2);font-weight:600;margin-top:5px;cursor:pointer;white-space:nowrap;}
   .cfm-same input{margin:0;cursor:pointer;}
-  .ad-cfd-wrap{display:flex;align-items:center;gap:4px;margin-top:5px;}
-  .ad-cfd-lab{font-size:11px;color:var(--ink2);font-weight:600;white-space:nowrap;}
-  .ad-cfd{font-size:11px;padding:4px 5px;border:1px solid var(--line2);border-radius:8px;font-family:inherit;width:118px;}
+  .ad-cfm-cell{min-width:148px;}
+  .ad-cfm-cell .ad-cfm{width:132px;box-sizing:border-box;}
+  .ad-cfm-cell .cfm-same{margin-top:6px;}
+  .ad-cfd-wrap{display:flex;flex-direction:column;gap:4px;margin-top:8px;padding-top:7px;border-top:1px dashed var(--line);}
+  .ad-cfd-lab{font-size:11px;color:var(--ink2);font-weight:700;}
+  .ad-cfd{font-size:11px;padding:5px 6px;border:1px solid var(--line2);border-radius:8px;font-family:inherit;width:132px;box-sizing:border-box;}
   .ad-trip{min-width:140px;} .ad-trip .prsn,.ad-who .prsn{line-height:1.45;margin-top:1px;} .ad-who{min-width:98px;}
   .ad-bar{display:flex;gap:16px;align-items:center;padding:14px 24px;border-bottom:1px solid var(--line);font-size:13px;font-weight:700;color:var(--ink2);flex-wrap:wrap;background:var(--surface2);}
   .ad-bar select{font-size:13px;font-weight:600;padding:8px 11px;}
@@ -857,7 +860,7 @@ function loadTrack(){
   sbRpc('track_application',{p_empno:TK_EMP,p_phone4:TK_P4}).then(r=>r.json()).then(rows=>{
     if(!Array.isArray(rows)||!rows.length){ box.innerHTML='<div class="tk-card err">일치하는 신청이 없습니다. 사번·휴대폰 뒷 4자리를 확인해주세요.</div>'; return; }
     box.innerHTML=rows.map(r=>'<div class="tk-card"><div class="tk-status" style="color:'+statusColor(r.status)+'">'+esc(r.status)+'</div>'+
-      '<div class="tk-meta">'+esc(r.applicant)+'님 · '+esc(r.resort)+' · '+(r.confirmed_checkin&&toYMD(r.confirmed_checkin)!==toYMD(r.checkin)?fmtD(r.checkin)+' → <b>변경 '+fmtD(r.confirmed_checkin)+'</b>':fmtD(r.checkin))+' · '+esc(r.nights)+' · '+esc(r.room_type||'-')+(r.confirmed_room&&r.confirmed_room!==r.room_type?' → <b>확정 '+esc(r.confirmed_room)+'</b>':'')+' · '+esc(r.pax)+'인</div>'+
+      '<div class="tk-meta">'+esc(r.applicant)+'님 · '+esc(r.resort)+' · '+(cfHas(r)?fmtD(r.checkin)+' → <b>변경 '+cfRange(r)+'</b>':fmtD(r.checkin))+' · '+esc(r.nights)+' · '+esc(r.room_type||'-')+(r.confirmed_room&&r.confirmed_room!==r.room_type?' → <b>확정 '+esc(r.confirmed_room)+'</b>':'')+' · '+esc(r.pax)+'인</div>'+
       (r.wait_no?'<div class="tk-wait">대기번호 <b>'+esc(r.wait_no)+'</b></div>':'')+
       (r.booking_no?'<div class="tk-wait">예약번호 <b>'+esc(r.booking_no)+'</b></div>':'')+
       (r.admin_memo?'<div class="tk-memo"><b>관리자 비고</b> '+esc(r.admin_memo)+'</div>':'')+
@@ -946,6 +949,10 @@ function statusColor(s){ return {'접수':'#8a8079','승인':'#3b6ef0','반려':
 function fmtDT(s){ if(!s) return ''; const d=new Date(s); if(isNaN(d.getTime())) return String(s).slice(0,10); const p=n=>String(n).padStart(2,'0'); return (d.getMonth()+1)+'/'+d.getDate()+' '+p(d.getHours())+':'+p(d.getMinutes()); }
 function fmtD(s){ if(!s) return ''; if(/^d{4}-d{2}-d{2}$/.test(String(s))) return String(s); const d=new Date(s); if(isNaN(d.getTime())) return String(s).slice(0,10); const p=n=>String(n).padStart(2,'0'); const w=['일','월','화','수','목','금','토'][d.getDay()]; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'('+w+')'; }
 function toYMD(s){ if(!s) return ''; s=String(s); if(/^d{4}-d{2}-d{2}$/.test(s)) return s; const d=new Date(s); if(isNaN(d.getTime())) return s.slice(0,10); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+// 변경 이용일(범위): confirmed_checkin=시작, confirmed_checkout=종료
+function cfHas(r){ return !!(toYMD(r.confirmed_checkin)||toYMD(r.confirmed_checkout)); }
+function cfRange(r){ const s=toYMD(r.confirmed_checkin), e=toYMD(r.confirmed_checkout); if(s&&e&&e!==s) return fmtD(s)+' ~ '+fmtD(e); return fmtD(s||e); }
+function cfRangePlain(r){ const s=toYMD(r.confirmed_checkin), e=toYMD(r.confirmed_checkout); if(s&&e&&e!==s) return s+'~'+e; return s||e; }
 
 function openAdmin(){
   if(!APP_READY){ alert('신청 기능이 아직 설정되지 않았습니다.'); return; }
@@ -1044,7 +1051,7 @@ function downloadAdminXlsx(){
   const head=['신청일','상태','지점','체크인','변경일자','박수','신청객실','확정객실','인원','신청자','부서','사번','연락처','신청번호','대기번호','예약번호','관리자비고','반려사유','대안/비고'];
   let body='';
   for(const r of rows){
-    const cells=[fmtDT(r.created_at),r.status,r.resort,fmtD(r.checkin),(r.confirmed_checkin?fmtD(r.confirmed_checkin):''),r.nights,r.room_type,r.confirmed_room,r.pax,r.applicant,r.dept,r.empno,r.phone,r.ref_no,r.wait_no,r.booking_no,r.admin_memo,r.reject_reason,r.note];
+    const cells=[fmtDT(r.created_at),r.status,r.resort,fmtD(r.checkin),(cfHas(r)?cfRangePlain(r):''),r.nights,r.room_type,r.confirmed_room,r.pax,r.applicant,r.dept,r.empno,r.phone,r.ref_no,r.wait_no,r.booking_no,r.admin_memo,r.reject_reason,r.note];
     body+='<tr>'+cells.map(v=>'<td>'+xlEsc(v)+'</td>').join('')+'</tr>';
   }
   const html='<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8">'+
@@ -1129,13 +1136,13 @@ function drawAdminRows(){
     '<tr data-id="'+r.id+'">'+
       '<td style="border-left:5px solid '+statusColor(r.status)+'"><select class="ad-st">'+ADMIN_STATUSES.map(s=>'<option'+(s===r.status?' selected':'')+'>'+s+'</option>').join('')+'</select></td>'+
       '<td class="prsn" style="white-space:nowrap">'+fmtDT(r.created_at)+'</td>'+
-      '<td class="ad-trip"><b>'+esc(r.resort)+'</b><div class="prsn">'+fmtD(r.checkin)+(r.confirmed_checkin&&toYMD(r.confirmed_checkin)!==toYMD(r.checkin)?' <b style="color:var(--brand-600)">→ '+fmtD(r.confirmed_checkin)+'</b>':'')+' · '+esc(r.nights)+'</div><div class="prsn">'+esc(r.room_type)+'</div><div class="ad-ref">'+esc(r.ref_no)+'</div>'+(r.note?'<div class="prsn">📝 '+esc(r.note)+'</div>':'')+'</td>'+
+      '<td class="ad-trip"><b>'+esc(r.resort)+'</b><div class="prsn">'+fmtD(r.checkin)+(cfHas(r)?' <b style="color:var(--brand-600)">→ '+cfRange(r)+'</b>':'')+' · '+esc(r.nights)+'</div><div class="prsn">'+esc(r.room_type)+'</div><div class="ad-ref">'+esc(r.ref_no)+'</div>'+(r.note?'<div class="prsn">📝 '+esc(r.note)+'</div>':'')+'</td>'+
       '<td class="ad-who"><span class="who-log" title="이 신청의 메일 발송내역 보기">'+esc(r.applicant)+' 📧</span><div class="prsn">'+esc(r.dept)+' · 사번 '+esc(r.empno)+'</div><div class="prsn">'+esc(r.phone)+'</div></td>'+
       '<td>'+esc(r.pax)+'인</td>'+
       '<td><input class="ad-wt" value="'+esc(r.wait_no)+'" placeholder="-"></td>'+
       '<td><input class="ad-bk" value="'+esc(r.booking_no)+'" placeholder="예약완료 시"></td>'+
-      '<td><input class="ad-cfm" value="'+esc(r.confirmed_room)+'" data-room="'+esc(r.room_type)+'" placeholder="실제 확정 객실"><label class="cfm-same"><input type="checkbox" class="ad-cfm-same"'+(r.confirmed_room&&r.confirmed_room===r.room_type?' checked':'')+'> 신청과 동일</label>'+
-        '<div class="ad-cfd-wrap"><span class="ad-cfd-lab">변경일</span><input type="date" class="ad-cfd" value="'+esc(toYMD(r.confirmed_checkin))+'"></div></td>'+
+      '<td class="ad-cfm-cell"><input class="ad-cfm" value="'+esc(r.confirmed_room)+'" data-room="'+esc(r.room_type)+'" placeholder="실제 확정 객실"><label class="cfm-same"><input type="checkbox" class="ad-cfm-same"'+(r.confirmed_room&&r.confirmed_room===r.room_type?' checked':'')+'> 신청과 동일</label>'+
+        '<div class="ad-cfd-wrap"><span class="ad-cfd-lab">변경 이용일</span><input type="date" class="ad-cfd ad-cfd-s" title="변경 시작일" value="'+esc(toYMD(r.confirmed_checkin))+'"><input type="date" class="ad-cfd ad-cfd-e" title="변경 종료일" value="'+esc(toYMD(r.confirmed_checkout))+'"></div></td>'+
       '<td><input class="ad-memo" value="'+esc(r.admin_memo)+'" placeholder="직원에게 표시"></td>'+
       '<td><input class="ad-rs" value="'+esc(r.reject_reason)+'" placeholder="반려 시 사유"></td>'+
       '<td><div class="ad-actions"><button class="ad-save">저장</button><button class="ad-del">삭제</button><button class="ad-mail"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>메일발송</button></div></td></tr>'
@@ -1151,10 +1158,10 @@ function drawAdminRows(){
   tb.querySelectorAll('.ad-cfm-same:checked').forEach(cb=>{ const inp=cb.closest('tr').querySelector('.ad-cfm'); inp.readOnly=true; inp.style.background='#f2efea'; });
   tb.querySelectorAll('.ad-save').forEach(btn=>btn.addEventListener('click',()=>{
     const tr=btn.closest('tr'); const id=tr.dataset.id;
-    const vals={ status:tr.querySelector('.ad-st').value, wait_no:tr.querySelector('.ad-wt').value, booking_no:tr.querySelector('.ad-bk').value, admin_memo:tr.querySelector('.ad-memo').value, reject_reason:tr.querySelector('.ad-rs').value, confirmed_room:tr.querySelector('.ad-cfm').value, confirmed_checkin:tr.querySelector('.ad-cfd').value };
+    const vals={ status:tr.querySelector('.ad-st').value, wait_no:tr.querySelector('.ad-wt').value, booking_no:tr.querySelector('.ad-bk').value, admin_memo:tr.querySelector('.ad-memo').value, reject_reason:tr.querySelector('.ad-rs').value, confirmed_room:tr.querySelector('.ad-cfm').value, confirmed_checkin:tr.querySelector('.ad-cfd-s').value, confirmed_checkout:tr.querySelector('.ad-cfd-e').value };
     btn.disabled=true; btn.textContent='저장 중…';
     const fin=(t)=>{ btn.textContent=t; setTimeout(()=>{btn.disabled=false;btn.textContent='저장';},1400); };
-    sbRpc('admin_save',{p_key:ADMIN_KEY,p_id:Number(id),p_status:vals.status,p_wait_no:vals.wait_no,p_reject_reason:vals.reject_reason,p_booking_no:vals.booking_no,p_admin_memo:vals.admin_memo,p_ref_no:null,p_confirmed_room:vals.confirmed_room,p_confirmed_checkin:vals.confirmed_checkin})
+    sbRpc('admin_save',{p_key:ADMIN_KEY,p_id:Number(id),p_status:vals.status,p_wait_no:vals.wait_no,p_reject_reason:vals.reject_reason,p_booking_no:vals.booking_no,p_admin_memo:vals.admin_memo,p_ref_no:null,p_confirmed_room:vals.confirmed_room,p_confirmed_checkin:vals.confirmed_checkin,p_confirmed_checkout:vals.confirmed_checkout})
       .then(r=>{ if(r.ok){ const row=ADMIN_ROWS.find(x=>String(x.id)===String(id)); if(row) Object.assign(row,vals); fin('저장됨 ✓'); } else fin('실패'); })
       .catch(()=>fin('실패'));
   }));
@@ -1195,9 +1202,9 @@ function buildStatusMail(r){
   L.push('신청하신 한화리조트 콘도 예약 진행 상황을 안내드립니다.');
   L.push('');
   L.push('· 지점: '+(r.resort||'-'));
-  if(r.confirmed_checkin && toYMD(r.confirmed_checkin)!==toYMD(r.checkin)){
+  if(cfHas(r)){
     L.push('· 신청 일정: '+fmtD(r.checkin)+' / '+(r.nights||'-'));
-    L.push('· 변경 일정: '+fmtD(r.confirmed_checkin)+' / '+(r.nights||'-'));
+    L.push('· 변경 일정: '+cfRange(r));
   } else {
     L.push('· 일정: '+fmtD(r.checkin)+' / '+(r.nights||'-'));
   }
