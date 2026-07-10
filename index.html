@@ -260,6 +260,25 @@
   .inq-cnt{color:var(--brand-600);font-weight:800;font-size:11.5px;white-space:nowrap;}
   .inq-back{background:var(--bgray);border:1px solid var(--line);border-radius:8px;padding:3px 11px;font-size:12.5px;font-weight:700;cursor:pointer;margin-right:9px;color:var(--ink);vertical-align:2px;}
   .inq-back:hover{background:var(--line);}
+  /* ── 관리자 대시보드 ─────────────────── */
+  .dash-wrap{padding:20px 24px 24px;display:flex;flex-direction:column;gap:22px;}
+  .dash-sec{}
+  .dash-h{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:15px;color:var(--brown);}
+  .dash-h b{font-size:15px;}
+  .dash-tot{font-size:12.5px;color:var(--ink2);font-weight:600;}
+  .dash-all{margin-left:auto;background:none;border:none;color:var(--brand-600);font-size:12.5px;font-weight:700;cursor:pointer;padding:4px 6px;}
+  .dash-all:hover{text-decoration:underline;}
+  .dash-chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .dash-chip{display:flex;align-items:center;gap:9px;padding:13px 15px;border:1px solid var(--line);border-radius:13px;background:var(--surface2);cursor:pointer;text-align:left;transition:border-color .12s,box-shadow .12s;}
+  .dash-chip:hover{border-color:var(--brand);box-shadow:0 2px 10px rgba(0,0,0,.06);}
+  .dash-dot{flex:none;width:10px;height:10px;border-radius:50%;}
+  .dash-lab{flex:1;font-size:13.5px;font-weight:700;color:var(--ink);}
+  .dash-num{font-size:20px;font-weight:800;color:var(--brown);font-variant-numeric:tabular-nums;}
+  .dash-chip.dash-0{opacity:.5;}
+  .dash-chip.dash-0 .dash-num{color:var(--ink3);}
+  .dash-chip.dash-hot{border-color:#e5443b;background:#fff5f4;}
+  .dash-chip.dash-hot .dash-num{color:#e5443b;}
+  .dash-foot{display:flex;gap:8px;padding-top:4px;border-top:1px solid var(--line);padding-top:16px;}
   .inqad-detail{padding:14px 20px 22px;max-height:calc(92vh - 60px);overflow:auto;}
   .inqad-list{padding:14px 20px 20px;max-height:calc(92vh - 60px);overflow:auto;display:flex;flex-direction:column;gap:14px;}
   .inqad-card{border:1px solid var(--line);border-radius:14px;padding:15px 17px;background:var(--surface2);}
@@ -903,11 +922,50 @@ function openAdmin(){
   const key = sessionStorage.getItem('adminKey') || prompt('관리자 암호를 입력하세요');
   if(!key) return;
   const card=document.getElementById('modalCard'); card.classList.add('wide');
-  card.innerHTML='<div class="modal-head"><div class="md-date">신청 관리</div><button class="md-close">×</button></div><div class="md-sum">불러오는 중…</div>';
+  card.innerHTML='<div class="modal-head"><div class="md-date">관리자</div><button class="md-close">×</button></div><div class="md-sum" style="padding:16px 22px">불러오는 중…</div>';
   document.getElementById('modal').classList.add('open');
   card.querySelector('.md-close').addEventListener('click',closeDetail);
-  loadAdmin(key);
+  loadAdminAll(key);
 }
+// 신청+문의를 함께 로드 후 대시보드
+function loadAdminAll(key){
+  const card=document.getElementById('modalCard');
+  sbRpc('admin_list',{p_key:key}).then(async r=>{
+    if(!r.ok){ sessionStorage.removeItem('adminKey'); var s=card.querySelector('.md-sum'); if(s) s.textContent='암호 오류 또는 접근 불가'; return; }
+    const rows=await r.json(); ADMIN_ROWS=Array.isArray(rows)?rows:[]; ADMIN_STATUSES=SB_STATUSES; ADMIN_KEY=key; sessionStorage.setItem('adminKey', key);
+    const ir=await sbRpc('admin_inquiries',{p_key:key}); const irows=ir.ok?await ir.json():[]; INQ_ROWS=Array.isArray(irows)?irows:[];
+    renderDashboard();
+  }).catch(err=>{ var s=card.querySelector('.md-sum'); if(s) s.textContent='불러오기 실패(네트워크 차단 가능): '+err; });
+}
+// 대시보드: 상태별 건수 → 클릭 시 해당 목록
+function renderDashboard(){
+  const card=document.getElementById('modalCard'); card.classList.add('wide');
+  const appC={}; SB_STATUSES.forEach(s=>appC[s]=0);
+  ADMIN_ROWS.forEach(r=>{ if(appC[r.status]==null) appC[r.status]=0; appC[r.status]++; });
+  const appChips=SB_STATUSES.map(s=>{ const n=appC[s]||0;
+    return '<button class="dash-chip'+(n?(s==='접수'?' dash-hot':''):' dash-0')+'" data-appstatus="'+s+'"><span class="dash-dot" style="background:'+statusColor(s)+'"></span><span class="dash-lab">'+(s==='접수'?'새 신청':s)+'</span><span class="dash-num">'+n+'</span></button>';
+  }).join('');
+  const inqNew=INQ_ROWS.filter(r=>r.status==='접수').length;
+  const inqReply=INQ_ROWS.filter(r=>r.status==='추가문의').length;
+  const inqDone=INQ_ROWS.filter(r=>r.status==='답변완료').length;
+  const inqChips=
+    '<button class="dash-chip'+(inqNew?' dash-hot':'')+'" data-inqstatus="접수"><span class="dash-dot" style="background:'+inqStColor('접수')+'"></span><span class="dash-lab">새 문의</span><span class="dash-num">'+inqNew+'</span></button>'+
+    '<button class="dash-chip'+(inqReply?' dash-hot':'')+'" data-inqstatus="추가문의"><span class="dash-dot" style="background:'+inqStColor('추가문의')+'"></span><span class="dash-lab">새 답글</span><span class="dash-num">'+inqReply+'</span></button>'+
+    '<button class="dash-chip" data-inqstatus="답변완료"><span class="dash-dot" style="background:'+inqStColor('답변완료')+'"></span><span class="dash-lab">답변완료</span><span class="dash-num">'+inqDone+'</span></button>';
+  card.innerHTML='<div class="modal-head"><div class="md-date">🗂 관리자 대시보드</div><button class="md-close">×</button></div>'+
+    '<div class="dash-wrap">'+
+      '<div class="dash-sec"><div class="dash-h"><b>📋 예약 신청</b> <span class="dash-tot">총 '+ADMIN_ROWS.length+'건</span><button class="dash-all" data-appstatus="">전체 목록 ›</button></div><div class="dash-chips">'+appChips+'</div></div>'+
+      '<div class="dash-sec"><div class="dash-h"><b>💬 1:1 문의</b> <span class="dash-tot">총 '+INQ_ROWS.length+'건</span><button class="dash-all" data-inqstatus="">전체 목록 ›</button></div><div class="dash-chips">'+inqChips+'</div></div>'+
+      '<div class="dash-foot"><button id="dashRefresh" class="ad-tool">↻ 새로고침</button><button id="dashMailLog" class="ad-tool">📧 발송내역</button></div>'+
+    '</div>';
+  card.querySelector('.md-close').addEventListener('click',closeDetail);
+  card.querySelectorAll('[data-appstatus]').forEach(el=>el.addEventListener('click',()=>openAppList(el.dataset.appstatus)));
+  card.querySelectorAll('[data-inqstatus]').forEach(el=>el.addEventListener('click',()=>openInqList(el.dataset.inqstatus)));
+  card.querySelector('#dashRefresh').addEventListener('click',()=>loadAdminAll(ADMIN_KEY));
+  card.querySelector('#dashMailLog').addEventListener('click',()=>openMailLog());
+}
+function openAppList(status){ renderAdmin(status||''); }
+function openInqList(status){ INQ_FILTER=status||''; renderInqAdmin(); }
 function loadAdmin(key){
   const card=document.getElementById('modalCard');
   sbRpc('admin_list',{p_key:key}).then(async r=>{
@@ -916,10 +974,10 @@ function loadAdmin(key){
     sessionStorage.setItem('adminKey', key); ADMIN_ROWS=Array.isArray(rows)?rows:[]; ADMIN_STATUSES=SB_STATUSES; ADMIN_KEY=key; renderAdmin();
   }).catch(err=>{ var s=card.querySelector('.md-sum'); if(s) s.textContent='불러오기 실패(네트워크 차단 가능): '+err; });
 }
-function renderAdmin(){
+function renderAdmin(preset){
   const card=document.getElementById('modalCard'); card.classList.add('wide');
   const filterOpts='<option value="">전체</option>'+ADMIN_STATUSES.map(s=>'<option>'+s+'</option>').join('');
-  card.innerHTML='<div class="modal-head"><div class="md-date">신청 관리 <span id="adCount"></span></div><button class="md-close">×</button></div>'+
+  card.innerHTML='<div class="modal-head"><div class="md-date"><button class="inq-back" id="adBack">← 대시보드</button> 신청 관리 <span id="adCount"></span></div><button class="md-close">×</button></div>'+
     '<div class="ad-bar"><label>상태 <select id="adFilter">'+filterOpts+'</select></label>'+
       '<label>정렬 <select id="adSort"><option value="new">신청일 최신순</option><option value="old">신청일 오래된순</option><option value="checkin">이용일순</option></select></label>'+
       '<label>신청일 <input type="date" id="adFromSub"><span class="ad-tilde">~</span><input type="date" id="adToSub"></label>'+
@@ -929,10 +987,12 @@ function renderAdmin(){
       '<button id="adMailLog" class="ad-tool">📧 발송내역</button></div>'+
     '<div class="scroll"><table><thead><tr><th>상태</th><th>신청일</th><th>지점 / 일정 / 신청번호</th><th>신청자</th><th>인원</th><th>대기번호</th><th>예약번호</th><th>확정객실</th><th>관리자 비고</th><th>반려사유</th><th>관리</th></tr></thead><tbody id="adBody"></tbody></table></div>';
   card.querySelector('.md-close').addEventListener('click',closeDetail);
+  card.querySelector('#adBack').addEventListener('click',renderDashboard);
   ['adFilter','adSort','adFromSub','adToSub','adFromUse','adToUse'].forEach(id=>card.querySelector('#'+id).addEventListener('change',drawAdminRows));
   card.querySelector('#adReset').addEventListener('click',()=>{ ['adFilter','adFromSub','adToSub','adFromUse','adToUse'].forEach(id=>card.querySelector('#'+id).value=''); card.querySelector('#adSort').value='new'; drawAdminRows(); });
   card.querySelector('#adExcel').addEventListener('click',downloadAdminXlsx);
   card.querySelector('#adMailLog').addEventListener('click',()=>openMailLog());
+  if(preset) card.querySelector('#adFilter').value=preset;
   drawAdminRows();
 }
 // 현재 필터/정렬이 적용된 신청 목록 반환
@@ -1146,7 +1206,7 @@ function openMailPop(r){
 function closeMailPop(){ document.getElementById('mailPop').classList.remove('open'); }
 
 // ── 관리자: 1:1 문의 관리 ───────────────────
-let INQ_ROWS=[];
+let INQ_ROWS=[], INQ_FILTER='';
 function openInquiryAdmin(){
   if(!APP_READY){ alert('문의 기능이 아직 설정되지 않았습니다.'); return; }
   const key = sessionStorage.getItem('adminKey') || prompt('관리자 암호를 입력하세요');
@@ -1171,9 +1231,9 @@ function reloadInqThen(fn){
 }
 // ① 리스트 화면 (문의일시·문의자·제목·상태) — 행 클릭 시 상세로
 function renderInqAdmin(){
-  const card=document.getElementById('modalCard');
-  const unans=INQ_ROWS.filter(r=>r.status!=='답변완료').length;
-  const rows=INQ_ROWS.map(r=>{
+  const card=document.getElementById('modalCard'); card.classList.add('wide');
+  const list=INQ_ROWS.filter(r=>!INQ_FILTER||r.status===INQ_FILTER);
+  const rows=list.map(r=>{
     const cnt=Array.isArray(r.messages)?r.messages.length:0;
     return '<tr class="inq-row" data-id="'+r.id+'">'+
       '<td class="prsn" style="white-space:nowrap">'+fmtDT(r.created_at)+'</td>'+
@@ -1181,10 +1241,12 @@ function renderInqAdmin(){
       '<td class="inq-row-title">'+esc(r.title|| (r.question?String(r.question).replace(/\n/g," ").slice(0,24)+'…':'-'))+(cnt?' <span class="inq-cnt">💬'+cnt+'</span>':'')+'</td>'+
       '<td style="white-space:nowrap"><span class="inqad-st" style="background:'+inqStColor(r.status)+'">'+esc(r.status)+'</span></td></tr>';
   }).join('');
-  card.innerHTML='<div class="modal-head"><div class="md-date">💬 문의 관리 <span style="font-size:12px;color:var(--ink2);font-weight:600">총 '+INQ_ROWS.length+'건 · 미답변 '+unans+'건</span></div><button class="md-close">×</button></div>'+
+  const label=INQ_FILTER?(' · '+esc(INQ_FILTER)+' '+list.length+'건'):(' · 총 '+INQ_ROWS.length+'건');
+  card.innerHTML='<div class="modal-head"><div class="md-date"><button class="inq-back" id="inqBack">← 대시보드</button> 💬 문의 관리<span style="font-size:12px;color:var(--ink2);font-weight:600">'+label+'</span></div><button class="md-close">×</button></div>'+
     '<div class="scroll" style="padding:0 4px 14px"><table class="inq-tbl"><thead><tr><th>문의일시</th><th>문의자</th><th>제목</th><th>상태</th></tr></thead><tbody>'+
-    (INQ_ROWS.length?rows:'<tr><td colspan="4" class="prsn" style="padding:24px;text-align:center">등록된 문의가 없습니다.</td></tr>')+'</tbody></table></div>';
+    (list.length?rows:'<tr><td colspan="4" class="prsn" style="padding:24px;text-align:center">해당 문의가 없습니다.</td></tr>')+'</tbody></table></div>';
   card.querySelector('.md-close').addEventListener('click',closeDetail);
+  card.querySelector('#inqBack').addEventListener('click',renderDashboard);
   card.querySelectorAll('.inq-row').forEach(tr=>tr.addEventListener('click',()=>openInqDetail(Number(tr.dataset.id))));
 }
 // ② 상세 화면 (내용·답변·스레드·답글)
@@ -1316,14 +1378,13 @@ function buildInqMail(r, ans){
 function setBadge(id,n){ const el=document.getElementById(id); if(!el) return; if(n>0){ el.textContent=n>99?'99+':n; el.style.display='inline-block'; } else { el.style.display='none'; } }
 function refreshAdminBadges(){
   const key=sessionStorage.getItem('adminKey');
-  if(!key||!APP_READY){ setBadge('adminBadge',0); setBadge('inqBadge',0); return; }
-  sbRpc('admin_counts',{p_key:key}).then(r=>r.ok?r.json():null).then(j=>{ if(!j) return; setBadge('adminBadge',j.apps||0); setBadge('inqBadge',j.inq||0); }).catch(()=>{});
+  if(!key||!APP_READY){ setBadge('adminBadge',0); return; }
+  sbRpc('admin_counts',{p_key:key}).then(r=>r.ok?r.json():null).then(j=>{ if(!j) return; setBadge('adminBadge',(j.apps||0)+(j.inq||0)); }).catch(()=>{});
 }
 function updateFoot(){
   const d=new Date(DATA.scrapedAt);
-  document.getElementById('foot').innerHTML='수집 시각: '+d.toLocaleString('ko-KR')+' · 향후 '+DATA.days+'일 · 실시간과 다를 수 있으니 최종 예약은 담당자 확인 · <a href="#" id="adminLink" style="color:var(--ink2);text-decoration:underline">인사팀 관리자<span id="adminBadge" class="foot-badge"></span></a> · <a href="#" id="inqAdminLink" style="color:var(--ink2);text-decoration:underline">문의 관리<span id="inqBadge" class="foot-badge"></span></a>';
+  document.getElementById('foot').innerHTML='수집 시각: '+d.toLocaleString('ko-KR')+' · 향후 '+DATA.days+'일 · 실시간과 다를 수 있으니 최종 예약은 담당자 확인 · <a href="#" id="adminLink" style="color:var(--ink2);text-decoration:underline">인사팀 관리자<span id="adminBadge" class="foot-badge"></span></a>';
   document.getElementById('adminLink').addEventListener('click',(e)=>{e.preventDefault();openAdmin();});
-  document.getElementById('inqAdminLink').addEventListener('click',(e)=>{e.preventDefault();openInquiryAdmin();});
   refreshAdminBadges();
 }
 updateFoot();
