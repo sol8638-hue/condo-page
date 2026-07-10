@@ -1263,9 +1263,8 @@ function inqDetailHtml(r){
     '<button class="inqad-del" data-id="'+r.id+'">삭제</button>'+
     '<span class="inqad-msg" data-id="'+r.id+'"></span></div>'+
     inqThreadHtml(r.messages, true)+
-    '<div class="inqad-reply"><textarea class="inqad-re" data-id="'+r.id+'" rows="2" placeholder="추가 답글을 입력하세요"></textarea>'+
+    '<div class="inqad-reply"><textarea class="inqad-re" data-id="'+r.id+'" rows="2" placeholder="추가 답글을 입력하세요 (등록 후 위 「답변 메일발송」을 누르면 이 답글까지 함께 메일로 전송됩니다)"></textarea>'+
     '<div class="inqad-re-btns"><button class="inqad-re-save" data-id="'+r.id+'">답글 등록</button>'+
-    '<button class="inqad-re-mail" data-id="'+r.id+'">📧 답글 메일발송</button>'+
     '<span class="inqad-re-msg" data-id="'+r.id+'"></span></div></div>'+
     '</div>';
 }
@@ -1304,12 +1303,13 @@ function onInqAdminClick(e){
     }).catch(()=>{ b.disabled=false; msg.className='inqad-msg err'; msg.textContent='저장 실패'; });
   } else if(b.classList.contains('inqad-mail')){
     const ans=ta.value.trim();
-    if(!ans){ msg.className='inqad-msg err'; msg.textContent='답변을 먼저 입력하세요'; return; }
+    const hasThread=Array.isArray(row.messages)&&row.messages.length;
+    if(!ans && !hasThread){ msg.className='inqad-msg err'; msg.textContent='답변 또는 답글을 먼저 입력/등록하세요'; return; }
     const m=buildInqMail(row, ans);
-    if(!confirm(m.to+' 으로 답변 메일을 발송할까요? (답변도 함께 저장됩니다)')) return;
+    if(!confirm(m.to+' 으로 지금까지의 답변·답글을 모두 담아 메일을 발송할까요?'+(ans?' (답변도 함께 저장됩니다)':''))) return;
     b.disabled=true; msg.className='inqad-msg'; msg.textContent='발송 중…';
-    sbRpc('answer_inquiry',{p_key:ADMIN_KEY,p_id:id,p_answer:ans})
-      .then(()=>{ row.answer=ans; row.status='답변완료'; return sbRpc('queue_mail',{p_key:ADMIN_KEY,p_to:m.to,p_subj:m.subj,p_body:m.body,p_app_id:null}); })
+    const save = ans ? sbRpc('answer_inquiry',{p_key:ADMIN_KEY,p_id:id,p_answer:ans}).then(()=>{ row.answer=ans; row.status='답변완료'; }) : Promise.resolve();
+    save.then(()=>sbRpc('queue_mail',{p_key:ADMIN_KEY,p_to:m.to,p_subj:m.subj,p_body:m.body,p_app_id:null}))
       .then(res=>{ if(res.ok){ msg.className='inqad-msg ok'; msg.textContent='✅ 발송 요청 완료 — 1분 내 전송'; } else { msg.className='inqad-msg err'; msg.textContent='발송 실패(권한/네트워크)'; } b.disabled=false; })
       .catch(()=>{ b.disabled=false; msg.className='inqad-msg err'; msg.textContent='발송 실패(네트워크)'; });
   } else if(b.classList.contains('inqad-del')){
@@ -1318,41 +1318,16 @@ function onInqAdminClick(e){
     sbRpc('delete_inquiry',{p_key:ADMIN_KEY,p_id:id})
       .then(res=>{ if(res.ok){ INQ_ROWS=INQ_ROWS.filter(r=>r.id!==id); renderInqAdmin(); } else { b.disabled=false; msg.className='inqad-msg err'; msg.textContent='삭제 실패'; } })
       .catch(()=>{ b.disabled=false; });
-  } else if(b.classList.contains('inqad-re-save')||b.classList.contains('inqad-re-mail')){
+  } else if(b.classList.contains('inqad-re-save')){
     const re=document.querySelector('.inqad-re[data-id="'+id+'"]');
     const rmsg=document.querySelector('.inqad-re-msg[data-id="'+id+'"]');
     const body=re.value.trim();
     if(!body){ rmsg.className='inqad-re-msg err'; rmsg.textContent='내용을 입력하세요'; return; }
-    const withMail=b.classList.contains('inqad-re-mail');
-    if(withMail){ const to=(row.empno||'').trim().replace(/^[A-Za-z]+/,'')+MAIL_DOMAIN; if(!confirm(to+' 으로 답글 알림메일을 함께 발송할까요?')) return; }
     b.disabled=true; rmsg.className='inqad-re-msg'; rmsg.textContent='등록 중…';
     sbRpc('admin_reply_inquiry',{p_key:ADMIN_KEY,p_id:id,p_body:body})
-      .then(res=>{ if(!res.ok) throw 0;
-        if(!withMail){ reloadInqThen(()=>openInqDetail(id)); return; }
-        const m=buildInqReplyMail(row, body);
-        return sbRpc('queue_mail',{p_key:ADMIN_KEY,p_to:m.to,p_subj:m.subj,p_body:m.body,p_app_id:null})
-          .then(()=>reloadInqThen(()=>openInqDetail(id))); })
+      .then(res=>{ if(!res.ok) throw 0; reloadInqThen(()=>openInqDetail(id)); })
       .catch(()=>{ b.disabled=false; rmsg.className='inqad-re-msg err'; rmsg.textContent='등록 실패'; });
   }
-}
-function buildInqReplyMail(r, body){
-  const to=(r.empno||'').trim().replace(/^[A-Za-z]+/,'')+MAIL_DOMAIN;
-  const subj='[한화리조트 콘도] 1:1 문의 답글 안내';
-  const L=[];
-  L.push((r.name||'')+'님, 안녕하세요. 인사팀입니다.');
-  L.push('문의하신 건에 답글이 등록되었습니다.');
-  L.push('');
-  if(r.title) L.push('· 제목: '+r.title);
-  L.push('[답글]');
-  L.push(body);
-  L.push('');
-  L.push('전체 대화 내용은 콘도 예약 페이지 「문의 → 내 문의 조회」에서 확인하실 수 있습니다.');
-  L.push('');
-  L.push('※ 본 메일은 발신전용으로 회신(답장)을 받지 않습니다.');
-  L.push('   추가 문의는 페이지에서 답글로 남겨 주시거나, OK저축은행 인사팀 김예솔 책임(2410003@okfngroup.com)으로 연락 주시기 바랍니다.');
-  L.push('');
-  L.push('감사합니다.');
-  return { to, subj, body:L.join('\n') };
 }
 function buildInqMail(r, ans){
   const to=(r.empno||'').trim().replace(/^[A-Za-z]+/,'')+MAIL_DOMAIN;
@@ -1362,14 +1337,17 @@ function buildInqMail(r, ans){
   L.push('남겨주신 문의에 답변드립니다.');
   L.push('');
   if(r.title) L.push('· 제목: '+r.title);
-  L.push('[문의 내용]');
+  L.push('■ 문의');
   L.push(r.question||'-');
-  L.push('');
-  L.push('[답변]');
-  L.push(ans);
+  if(ans){ L.push(''); L.push('■ 답변'); L.push(ans); }
+  const msgs=Array.isArray(r.messages)?r.messages:[];
+  if(msgs.length){
+    L.push(''); L.push('■ 추가 대화');
+    msgs.forEach(m=>{ L.push('['+(m.sender==='admin'?'인사팀':'직원')+'] '+(m.body||'')); });
+  }
   L.push('');
   L.push('※ 본 메일은 발신전용으로 회신(답장)을 받지 않습니다.');
-  L.push('   추가 문의는 OK저축은행 인사팀 김예솔 책임(2410003@okfngroup.com)으로 연락 주시기 바랍니다.');
+  L.push('   추가 문의는 콘도 예약 페이지 「문의 → 내 문의 조회」에서 답글로 남겨 주시거나, OK저축은행 인사팀 김예솔 책임(2410003@okfngroup.com)으로 연락 주시기 바랍니다.');
   L.push('');
   L.push('감사합니다.');
   return { to, subj, body:L.join('\n') };
