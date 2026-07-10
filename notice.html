@@ -6,122 +6,126 @@
 <meta name="robots" content="noindex,nofollow">
 <title>콘도 예약 시스템 안내 (복사용)</title>
 <style>
-  :root{ --ink:#2b2622; --ink2:#6b625b; --line:#e7e1da; --brand:#F55000; --bg:#faf8f6; }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;line-height:1.65;font-size:15px;}
-  .wrap{max-width:720px;margin:0 auto;padding:16px 16px 60px;}
-  .bar{position:sticky;top:0;background:var(--bg);padding:12px 0;border-bottom:1px solid var(--line);z-index:5;}
-  .copy{width:100%;background:var(--brand);color:#fff;border:none;border-radius:12px;padding:15px;font-size:16px;font-weight:800;cursor:pointer;}
+  body{margin:0;background:#f3f1ef;color:#2b2622;font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Apple SD Gothic Neo",sans-serif;line-height:1.6;font-size:15px;}
+  .wrap{max-width:760px;margin:0 auto;padding:14px 14px 70px;}
+  .bar{position:sticky;top:0;background:#f3f1ef;padding:12px 0;z-index:5;}
+  .copy{width:100%;background:#F55000;color:#fff;border:none;border-radius:12px;padding:16px;font-size:16px;font-weight:800;cursor:pointer;}
   .copy:active{opacity:.85}
-  .hint{font-size:12.5px;color:var(--ink2);text-align:center;margin-top:8px;}
-  #doc{margin-top:18px;}
-  #doc h1{font-size:20px;margin:26px 0 10px;}
-  #doc h2{font-size:17px;margin:24px 0 8px;padding-bottom:6px;border-bottom:2px solid var(--line);}
-  #doc h3{font-size:15.5px;margin:18px 0 6px;color:#3a332e;}
-  #doc p{margin:6px 0;}
-  #doc ul{margin:6px 0;padding-left:20px;}
-  #doc li{margin:3px 0;}
-  #doc .lead{white-space:pre-line;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;}
-  #doc .row{margin:3px 0;}
-  #doc b{color:#000;}
-  .pw{color:var(--brand);font-weight:800;}
+  .hint{font-size:12.5px;color:#6b625b;text-align:center;margin-top:9px;line-height:1.5;}
+  .sheet{background:#fff;border-radius:14px;padding:22px 20px;margin-top:14px;box-shadow:0 1px 8px rgba(0,0,0,.06);}
+  table{border-collapse:collapse;width:100%;}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="bar">
-    <button class="copy" id="copyBtn">📋 전체 복사하기</button>
-    <div class="hint">버튼을 누른 뒤 네이버웍스 글쓰기에 붙여넣기 하세요</div>
+    <button class="copy" id="copyBtn">📋 서식 그대로 전체 복사</button>
+    <div class="hint">버튼 → 네이버웍스 글쓰기에서 <b>붙여넣기</b> 하면 색·표까지 그대로 들어갑니다</div>
   </div>
 
+  <div class="sheet">
   <div id="doc">
-<p class="lead">안녕하세요!
+    <p style="white-space:pre-line;margin:0 0 18px;font-size:15px;">안녕하세요!
 한화콘도 예약가능여부 확인 및 일자별 금액·예약 신청까지 가능한 페이지를 만들어봤습니다.
 이것저것 기능을 추가하다보니 좀 오래걸렸네요...ㅎㅎ
 테스트 해보시고 피드백 부탁드립니다!</p>
 
-<h1>한화리조트 콘도 예약 시스템 — 제작 방법 및 테스트 안내</h1>
+    <h1 style="color:#F55000;font-size:27px;font-weight:800;letter-spacing:-.02em;margin:24px 0 4px;">한화리조트 콘도 예약 시스템</h1>
+    <p style="color:#55474A;font-size:17px;font-weight:700;margin:0 0 4px;">예약 가능 여부 확인 · 일자별 요금 · 예약 신청</p>
+    <p style="color:#9a9089;font-size:13px;margin:0 0 4px;">2026년 7월 · 인사팀 AI 활용 프로젝트</p>
 
-<h2>Ⅰ. 어떻게 만들었나</h2>
+    <h2 style="background:#F55000;color:#fff;padding:9px 15px;border-radius:7px;font-size:17px;font-weight:800;margin:26px 0 12px;">Ⅰ. 어떻게 만들었나</h2>
 
-<h3>1. 제작 방식 — AI 코딩 에이전트 활용</h3>
-<p>AI 코딩 에이전트(Claude Code)와 대화하는 방식으로 제작.</p>
-<ul>
-<li>자연어로 요구사항 전달 → AI가 코드 작성·수정을 반복하며 기능 완성. (예: "신청자가 취소 요청을 할 수 있게 해줘" → AI가 화면·데이터베이스·메일까지 구현)</li>
-<li>화면 디자인은 AI 디자인 도구(클로드 디자인)로 시안을 만든 뒤 반영.</li>
-</ul>
+    <h3 style="color:#F55000;font-size:15.5px;font-weight:800;border-left:4px solid #F55000;padding-left:9px;margin:20px 0 7px;">1. 제작 방식 — AI 코딩 에이전트 활용</h3>
+    <p style="margin:6px 0;">AI 코딩 에이전트(Claude Code)와 대화하는 방식으로 제작.</p>
+    <ul style="margin:6px 0;padding-left:20px;">
+      <li style="margin:4px 0;">자연어로 요구사항 전달 → AI가 코드 작성·수정을 반복하며 기능 완성. (예: "신청자가 취소 요청을 할 수 있게 해줘" → AI가 화면·데이터베이스·메일까지 구현)</li>
+      <li style="margin:4px 0;">화면 디자인은 AI 디자인 도구(클로드 디자인)로 시안을 만든 뒤 반영.</li>
+    </ul>
 
-<h3>2. 사용 기술</h3>
-<ul>
-<li><b>화면(프론트엔드)</b> : HTML · CSS · JavaScript — 프레임워크 없이 단일 페이지로 가볍게 구성</li>
-<li><b>빌드</b> : Node.js 스크립트 — 데이터와 화면 틀을 합쳐 최종 페이지를 자동 생성</li>
-<li><b>호스팅</b> : Cloudflare Pages — 항상 접속 가능한 웹 주소 제공, 코드 변경 시 자동 배포</li>
-<li><b>데이터베이스·백엔드</b> : Supabase (PostgreSQL) — 신청·문의·메일 데이터 저장 및 보안 처리</li>
-<li><b>잔여객실 수집</b> : Playwright + 작업 스케줄러 — 한화리조트 사이트에서 30분마다 자동 수집</li>
-<li><b>메일 발송</b> : Supabase Edge Function + 지메일 — PC 없이 24시간 자동 발송</li>
-<li><b>버전 관리</b> : Git · GitHub — 코드 이력 관리</li>
-</ul>
+    <h3 style="color:#F55000;font-size:15.5px;font-weight:800;border-left:4px solid #F55000;padding-left:9px;margin:20px 0 7px;">2. 사용 기술</h3>
+    <table style="border-collapse:collapse;width:100%;font-size:14px;">
+      <thead><tr>
+        <th style="background:#f3ede9;border:1px solid #e0d9d2;padding:8px 10px;text-align:left;width:34%;">구분</th>
+        <th style="background:#f3ede9;border:1px solid #e0d9d2;padding:8px 10px;text-align:left;">기술 · 역할</th>
+      </tr></thead>
+      <tbody>
+        <tr><td style="border:1px solid #e0d9d2;padding:8px 10px;font-weight:700;">화면(프론트엔드)</td><td style="border:1px solid #e0d9d2;padding:8px 10px;">HTML·CSS·JavaScript — 단일 페이지로 가볍게 구성</td></tr>
+        <tr><td style="border:1px solid #e0d9d2;padding:8px 10px;font-weight:700;">빌드</td><td style="border:1px solid #e0d9d2;padding:8px 10px;">Node.js 스크립트 — 데이터와 화면 틀을 합쳐 최종 페이지 자동 생성</td></tr>
+        <tr><td style="border:1px solid #e0d9d2;padding:8px 10px;font-weight:700;">호스팅</td><td style="border:1px solid #e0d9d2;padding:8px 10px;">Cloudflare Pages — 항상 접속 가능, 변경 시 자동 배포</td></tr>
+        <tr><td style="border:1px solid #e0d9d2;padding:8px 10px;font-weight:700;">DB·백엔드</td><td style="border:1px solid #e0d9d2;padding:8px 10px;">Supabase(PostgreSQL) — 신청·문의·메일 데이터 저장 및 보안 처리</td></tr>
+        <tr><td style="border:1px solid #e0d9d2;padding:8px 10px;font-weight:700;">잔여객실 수집</td><td style="border:1px solid #e0d9d2;padding:8px 10px;">Playwright + 작업 스케줄러 — 한화 사이트에서 30분마다 자동 수집</td></tr>
+        <tr><td style="border:1px solid #e0d9d2;padding:8px 10px;font-weight:700;">메일 발송</td><td style="border:1px solid #e0d9d2;padding:8px 10px;">Supabase Edge Function + 지메일 — PC 없이 24시간 자동 발송</td></tr>
+        <tr><td style="border:1px solid #e0d9d2;padding:8px 10px;font-weight:700;">버전 관리</td><td style="border:1px solid #e0d9d2;padding:8px 10px;">Git · GitHub</td></tr>
+      </tbody>
+    </table>
 
-<h3>3. 설계상의 특징</h3>
-<ul>
-<li><b>클라우드 기반</b> : 담당자 PC 상태와 무관하게 신청·문의·메일이 24시간 작동.</li>
-<li><b>개인정보 보호</b> : 신청·문의는 본인(사번 + 휴대폰 뒷 4자리)만, 관리 기능은 담당자(비밀번호)만 접근하도록 서버 단에서 통제.</li>
-<li><b>메일 발송 방식</b> : 회사 메일 서버는 사내망에서만 접속되어 클라우드에서 연결할 수 없으므로, 외부 발송이 가능하고 회사 메일함까지 정상 도착하는 인사팀 지메일 계정을 발송 통로로 사용. (받는 주소는 회사 이메일 사번@okfngroup.com 동일)</li>
-</ul>
+    <h3 style="color:#F55000;font-size:15.5px;font-weight:800;border-left:4px solid #F55000;padding-left:9px;margin:22px 0 7px;">3. 설계상의 특징</h3>
+    <ul style="margin:6px 0;padding-left:20px;">
+      <li style="margin:4px 0;"><b>클라우드 기반</b> : 담당자 PC 상태와 무관하게 신청·문의·메일이 24시간 작동.</li>
+      <li style="margin:4px 0;"><b>개인정보 보호</b> : 신청·문의는 본인(사번+휴대폰 뒷 4자리)만, 관리 기능은 담당자(비밀번호)만 접근하도록 서버 단에서 통제.</li>
+      <li style="margin:4px 0;"><b>메일 발송 방식</b> : 회사 메일 서버는 사내망 전용이라 클라우드에서 연결 불가 → 외부 발송이 가능하고 회사 메일함까지 정상 도착하는 인사팀 지메일을 발송 통로로 사용. (받는 주소는 회사 이메일 사번@okfngroup.com 동일)</li>
+    </ul>
 
-<h3>4. 한계점 — 실시간 객실 현황은 담당자 PC가 켜져 있어야 함</h3>
-<ul>
-<li>잔여객실 현황은 담당자 PC에서 한화리조트 사이트에 자동 로그인해 30분마다 수집. 한화 사이트 로그인·조회를 브라우저로 자동 수행해야 하므로, 이 작업이 도는 PC가 켜져 있어야 함.</li>
-<li>PC가 꺼져 있으면 새로운 잔여객실 정보가 갱신되지 않고 마지막 수집 시점 값에서 멈춤. (페이지·신청·문의·메일은 클라우드에서 동작하므로 정상 작동.)</li>
-<li>PC를 다시 켜면 자동으로 최신화 재개.</li>
-</ul>
+    <h3 style="color:#F55000;font-size:15.5px;font-weight:800;border-left:4px solid #F55000;padding-left:9px;margin:22px 0 7px;">4. 한계점 — 실시간 객실 현황은 담당자 PC가 켜져 있어야 함</h3>
+    <ul style="margin:6px 0;padding-left:20px;">
+      <li style="margin:4px 0;">잔여객실 현황은 담당자 PC에서 한화 사이트에 자동 로그인해 30분마다 수집. 브라우저 자동 로그인·조회가 필요해 이 작업이 도는 PC가 켜져 있어야 함.</li>
+      <li style="margin:4px 0;">PC가 꺼져 있으면 잔여객실 정보가 갱신되지 않고 마지막 수집 값에서 멈춤. (페이지·신청·문의·메일은 클라우드라 정상 작동.)</li>
+      <li style="margin:4px 0;">PC를 다시 켜면 자동으로 최신화 재개.</li>
+    </ul>
 
-<h2>Ⅱ. 사전 테스트 안내</h2>
+    <h2 style="background:#F55000;color:#fff;padding:9px 15px;border-radius:7px;font-size:17px;font-weight:800;margin:28px 0 12px;">Ⅱ. 사전 테스트 안내</h2>
 
-<h3>1. 개요</h3>
-<ul>
-<li><b>접속 주소</b> : https://okfg-condo.pages.dev/ (PC·모바일 모두 가능, 설치 불필요)</li>
-<li><b>테스트 기간</b> : 2026.07.10 ~ 2026.07.15</li>
-</ul>
+    <h3 style="color:#F55000;font-size:15.5px;font-weight:800;border-left:4px solid #F55000;padding-left:9px;margin:20px 0 7px;">1. 개요</h3>
+    <table style="border-collapse:collapse;width:100%;font-size:14px;">
+      <tbody>
+        <tr><td style="background:#f3ede9;border:1px solid #e0d9d2;padding:8px 10px;font-weight:700;width:30%;">접속 주소</td><td style="border:1px solid #e0d9d2;padding:8px 10px;">https://okfg-condo.pages.dev/ (PC·모바일 모두 가능, 설치 불필요)</td></tr>
+        <tr><td style="background:#f3ede9;border:1px solid #e0d9d2;padding:8px 10px;font-weight:700;">테스트 기간</td><td style="border:1px solid #e0d9d2;padding:8px 10px;">2026.07.10 ~ 2026.07.15</td></tr>
+      </tbody>
+    </table>
 
-<h3>2. 주요 기능</h3>
-<p class="row"><b>직원용</b> — 요금표·객실 사진 조회, 예약 달력(잔여객실 현황), 예약 신청 및 조회, 취소 요청, 1:1 문의</p>
-<p class="row"><b>관리자용(담당자 전용)</b> — 현황 대시보드, 상태 관리, 안내·답변 메일 발송, 신규 접수 자동 알림, 발송 내역 조회, 엑셀 다운로드</p>
+    <h3 style="color:#F55000;font-size:15.5px;font-weight:800;border-left:4px solid #F55000;padding-left:9px;margin:22px 0 7px;">2. 주요 기능</h3>
+    <p style="margin:6px 0;"><b style="color:#F55000;">직원용</b> — 요금표·객실 사진 조회, 예약 달력(잔여객실 현황), 예약 신청 및 조회, 취소 요청, 1:1 문의</p>
+    <p style="margin:6px 0;"><b style="color:#F55000;">관리자용(담당자 전용)</b> — 현황 대시보드, 상태 관리, 안내·답변 메일 발송, 신규 접수 자동 알림, 발송 내역 조회, 엑셀 다운로드</p>
 
-<h3>3. 관리자 화면 접속 방법</h3>
-<ul>
-<li>1. 페이지 맨 아래로 이동</li>
-<li>2. 하단의 「인사팀 관리자」 클릭</li>
-<li>3. 비밀번호 <span class="pw">★★★★★★ (여기에 비밀번호 입력)</span> → 관리자 대시보드 열림</li>
-</ul>
-<p>※ 새로운 신청·문의·답글이 등록되면 담당자 사내메일로 자동 알림이 발송되어, 관리자 화면에 들어가지 않아도 접수 사실을 바로 확인 가능.</p>
+    <h3 style="color:#F55000;font-size:15.5px;font-weight:800;border-left:4px solid #F55000;padding-left:9px;margin:22px 0 7px;">3. 관리자 화면 접속 방법</h3>
+    <ol style="margin:6px 0;padding-left:22px;">
+      <li style="margin:4px 0;">페이지 맨 아래로 이동</li>
+      <li style="margin:4px 0;">하단의 「인사팀 관리자」 클릭</li>
+      <li style="margin:4px 0;">비밀번호 <b style="color:#F55000;">★★★★★★ (여기에 비밀번호 입력)</b> → 관리자 대시보드 열림</li>
+    </ol>
+    <p style="margin:8px 0;background:#fff5f0;border:1px solid #ffd9c7;border-radius:8px;padding:10px 12px;font-size:14px;">※ 새로운 신청·문의·답글이 등록되면 담당자 사내메일로 <b>자동 알림</b>이 발송되어, 관리자 화면에 들어가지 않아도 접수 사실을 바로 확인할 수 있습니다.</p>
 
-<h3>4. 테스트 요청 항목</h3>
-<ul>
-<li>예약 달력·잔여객실·객실 사진이 정상 표시되는지 확인</li>
-<li>신청서 제출 후 내 신청 조회로 정상 확인 (잘못된 정보로는 조회되지 않는지도 확인)</li>
-<li>신청 건 취소 요청 후 상태 변경 확인</li>
-<li>1:1 문의 등록 후 답변·답글이 정상 표시되는지 확인</li>
-<li>(담당자) 상태 변경 및 메일 발송 → 실제 수신 확인</li>
-<li>휴대폰 화면에서 정상 작동 여부 확인</li>
-</ul>
-<p>테스트 해보시고 오류·불편 사항이나 개선 아이디어 있으시면 전달 부탁드립니다.</p>
+    <h3 style="color:#F55000;font-size:15.5px;font-weight:800;border-left:4px solid #F55000;padding-left:9px;margin:22px 0 7px;">4. 테스트 요청 항목</h3>
+    <ul style="margin:6px 0;padding-left:20px;">
+      <li style="margin:4px 0;">예약 달력·잔여객실·객실 사진이 정상 표시되는지 확인</li>
+      <li style="margin:4px 0;">신청서 제출 후 <b>내 신청 조회</b>로 정상 확인 (잘못된 정보로는 조회되지 않는지도 확인)</li>
+      <li style="margin:4px 0;">신청 건 <b>취소 요청</b> 후 상태 변경 확인</li>
+      <li style="margin:4px 0;"><b>1:1 문의</b> 등록 후 답변·답글이 정상 표시되는지 확인</li>
+      <li style="margin:4px 0;">(담당자) 상태 변경 및 <b>메일 발송 → 실제 수신</b> 확인</li>
+      <li style="margin:4px 0;">휴대폰 화면에서 정상 작동 여부 확인</li>
+    </ul>
+    <p style="margin:12px 0 0;">테스트 해보시고 오류·불편 사항이나 개선 아이디어 있으시면 전달 부탁드립니다.</p>
+  </div>
   </div>
 </div>
 
 <script>
-document.getElementById('copyBtn').addEventListener('click', async function(){
-  const text = document.getElementById('doc').innerText.trim();
+const btn=document.getElementById('copyBtn');
+btn.addEventListener('click', async function(){
+  const el=document.getElementById('doc');
   try{
-    await navigator.clipboard.writeText(text);
-    this.textContent = '✅ 복사됨! 네이버웍스에 붙여넣기 하세요';
+    const item=new ClipboardItem({
+      'text/html': new Blob([el.innerHTML], {type:'text/html'}),
+      'text/plain': new Blob([el.innerText], {type:'text/plain'})
+    });
+    await navigator.clipboard.write([item]);
+    btn.textContent='✅ 복사됨! 네이버웍스에 붙여넣기';
   }catch(e){
-    // 클립보드 권한이 막힌 경우: 전체 선택으로 대체
-    const r=document.createRange(); r.selectNode(document.getElementById('doc'));
-    const s=window.getSelection(); s.removeAllRanges(); s.addRange(r);
-    this.textContent = '길게 눌러 복사하세요 (전체 선택됨)';
+    try{ await navigator.clipboard.writeText(el.innerText); btn.textContent='✅ 복사됨(글자만) — 붙여넣기'; }
+    catch(e2){ const r=document.createRange(); r.selectNodeContents(el); const s=getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent='길게 눌러 복사하세요(전체 선택됨)'; }
   }
-  setTimeout(()=>{ this.textContent='📋 전체 복사하기'; }, 3000);
+  setTimeout(()=>{ btn.textContent='📋 서식 그대로 전체 복사'; }, 4000);
 });
 </script>
 </body>
