@@ -288,6 +288,8 @@
   .inq-c-who{font-size:11.5px;font-weight:800;color:var(--ink2);margin-bottom:2px;}
   .inq-c-admin .inq-c-who{color:var(--brand-600);}
   .inq-c-time{font-weight:500;color:var(--ink3);}
+  .inq-c-del{margin-left:8px;background:none;border:none;color:var(--brand-600);font-size:11px;font-weight:700;cursor:pointer;padding:0;text-decoration:underline;}
+  .inq-c-del:disabled{opacity:.5;cursor:default;}
   .inq-c-body{font-size:13.5px;line-height:1.55;color:var(--ink);white-space:pre-wrap;word-break:break-word;}
   .inq-reply{margin-top:12px;display:flex;flex-direction:column;gap:7px;}
   .inq-re-in{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font:inherit;font-size:13.5px;resize:vertical;}
@@ -834,12 +836,13 @@ document.getElementById('tk-btn').addEventListener('click',()=>{
 // ── 1:1 문의 (직원 제출/조회) ───────────────────
 function sbInsertInq(obj){ return fetch(SB_REST+'/inquiries',{method:'POST',headers:Object.assign(sbHeaders(),{'Prefer':'return=minimal'}),body:JSON.stringify(obj)}); }
 function inqStColor(s){ return s==='답변완료'?'#2f9e6f':(s==='추가문의'?'#d9744a':'#c9a14a'); }
-function inqThreadHtml(msgs){
+function inqThreadHtml(msgs, admin){
   if(!Array.isArray(msgs)||!msgs.length) return '';
   return '<div class="inq-thread">'+msgs.map(m=>{
     const isAdmin=m.sender==='admin';
     return '<div class="inq-cmt '+(isAdmin?'inq-c-admin':'inq-c-emp')+'"><span class="inq-c-arrow">↳</span>'+
-      '<div class="inq-c-main"><div class="inq-c-who">'+(isAdmin?'📩 인사팀':'🙋 직원')+' <span class="inq-c-time">'+fmtDT(m.created_at)+'</span></div>'+
+      '<div class="inq-c-main"><div class="inq-c-who">'+(isAdmin?'📩 인사팀':'🙋 직원')+' <span class="inq-c-time">'+fmtDT(m.created_at)+'</span>'+
+      (admin&&m.id!=null?'<button class="inq-c-del" data-msg-id="'+m.id+'" title="이 답글 삭제">삭제</button>':'')+'</div>'+
       '<div class="inq-c-body">'+esc(m.body).replace(/\n/g,"<br>")+'</div></div></div>';
   }).join('')+'</div>';
 }
@@ -1197,15 +1200,17 @@ function inqDetailHtml(r){
     '<button class="inqad-mail" data-id="'+r.id+'">📧 답변 메일발송</button>'+
     '<button class="inqad-del" data-id="'+r.id+'">삭제</button>'+
     '<span class="inqad-msg" data-id="'+r.id+'"></span></div>'+
-    inqThreadHtml(r.messages)+
+    inqThreadHtml(r.messages, true)+
     '<div class="inqad-reply"><textarea class="inqad-re" data-id="'+r.id+'" rows="2" placeholder="추가 답글을 입력하세요"></textarea>'+
     '<div class="inqad-re-btns"><button class="inqad-re-save" data-id="'+r.id+'">답글 등록</button>'+
-    '<button class="inqad-re-mail" data-id="'+r.id+'">📧 답글+메일</button>'+
+    '<button class="inqad-re-mail" data-id="'+r.id+'">📧 답글 메일발송</button>'+
     '<span class="inqad-re-msg" data-id="'+r.id+'"></span></div></div>'+
     '</div>';
 }
+let CURRENT_INQ_ID=null;
 function openInqDetail(id){
   const r=INQ_ROWS.find(x=>x.id===id); if(!r) return;
+  CURRENT_INQ_ID=id;
   const card=document.getElementById('modalCard');
   card.innerHTML='<div class="modal-head"><div class="md-date"><button class="inq-back">← 목록</button> 문의 상세</div><button class="md-close">×</button></div>'+
     '<div class="inqad-detail">'+inqDetailHtml(r)+'</div>';
@@ -1215,6 +1220,15 @@ function openInqDetail(id){
 }
 function onInqAdminClick(e){
   const b=e.target.closest('button'); if(!b) return;
+  if(b.classList.contains('inq-c-del')){
+    const mid=Number(b.dataset.msgId);
+    if(!confirm('이 답글을 삭제할까요? 되돌릴 수 없습니다.')) return;
+    b.disabled=true; b.textContent='삭제 중…';
+    sbRpc('delete_inquiry_message',{p_key:ADMIN_KEY,p_id:mid})
+      .then(res=>{ if(res.ok){ reloadInqThen(()=>openInqDetail(CURRENT_INQ_ID)); } else { b.disabled=false; b.textContent='삭제'; alert('삭제 실패'); } })
+      .catch(()=>{ b.disabled=false; b.textContent='삭제'; alert('삭제 실패(네트워크)'); });
+    return;
+  }
   const id=Number(b.dataset.id); const row=INQ_ROWS.find(r=>r.id===id); if(!row) return;
   const ta=document.querySelector('.inqad-a[data-id="'+id+'"]');
   const msg=document.querySelector('.inqad-msg[data-id="'+id+'"]');
