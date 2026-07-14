@@ -350,11 +350,8 @@
   .apply-form .frow{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
   .apply-form label{display:block;font-size:13px;font-weight:700;color:var(--ink2);line-height:1.5;}
   .ap-hint{display:block;font-size:11.5px;font-weight:600;color:var(--ink3);margin-top:5px;}
-  .ap-persons-row{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;}
-  .ap-persons-row .pers-lab{flex:none;}
-  .ap-persons-row .pers-lab input{max-width:120px;}
-  .wl-check{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--ink2);cursor:pointer;background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;}
-  .wl-check input{margin:0;cursor:pointer;width:16px;height:16px;flex:none;}
+  .wl-check{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--ink);cursor:pointer;background:var(--surface2);border:1px solid var(--line2);border-radius:12px;padding:12px 14px;margin-top:7px;}
+  .wl-check input{margin:0;cursor:pointer;width:17px;height:17px;flex:none;}
   .wl-check b{color:var(--brand-600);}
   .apply-form input,.apply-form select,.apply-form textarea{font-size:15px;font-weight:500;color:var(--ink);padding:12px 14px;
     border:1px solid var(--line2);border-radius:12px;background:#fff;font-family:inherit;width:100%;transition:.14s;margin-top:7px;}
@@ -506,9 +503,9 @@
           <label>체크인 날짜 <span class="req">*</span><input name="checkin" id="ap-checkin" type="date" required></label>
           <label>박 수 <span class="req">*</span><select name="nights"><option>1박</option><option>2박</option><option>3박</option></select></label>
         </div>
-        <div class="ap-persons-row">
-          <label class="pers-lab">투숙 인원 <span class="req">*</span><input name="persons" type="number" min="1" value="2" required></label>
-          <label class="wl-check"><input type="checkbox" name="waitlist" id="ap-waitlist"> 마감된 날짜라도 <b>대기예약 신청</b></label>
+        <div class="frow">
+          <label>투숙 인원 <span class="req">*</span><input name="persons" type="number" min="1" value="2" required></label>
+          <label class="wl-field">대기예약<span class="wl-check"><input type="checkbox" name="waitlist" id="ap-waitlist"> 마감된 날짜라도 <b>신청</b></span></label>
         </div>
         <label>대안 일정 / 비고 <textarea name="note" rows="2" placeholder="예: 6/20~21 마감이면 6/27~28도 가능 / 오션뷰 희망 등"></textarea></label>
         <button type="submit" class="apply-btn" id="ap-submit">신청 제출</button>
@@ -863,8 +860,17 @@ function fillRooms(code){
   toggleUpg();
 }
 function apCode(){ const o=apResort.selectedOptions[0]; return o?o.dataset.code:DATA.resorts[0].code; }
+// 업그레이드 객실은 대기예약 불가 — 체크 시(또는 업그레이드 객실 선택 시) 해제 + 안내
+function wlUpgradeGuard(fromCheck){
+  const cb=document.getElementById('ap-waitlist');
+  if(cb && cb.checked && isUpgrade(apRoom.value)){
+    cb.checked=false;
+    alert('업그레이드 객실(스위트·프리미엄·로얄 등)은 대기예약이 불가합니다.\n대기예약은 디럭스 객실에 한해 신청할 수 있습니다.');
+  }
+}
 apResort.addEventListener('change',()=>fillRooms(apCode()));
-apRoom.addEventListener('change',toggleUpg);
+apRoom.addEventListener('change',()=>{ toggleUpg(); wlUpgradeGuard(); });
+(function(){ var cb=document.getElementById('ap-waitlist'); if(cb) cb.addEventListener('change',()=>wlUpgradeGuard(true)); })();
 document.getElementById('ap-checkin').addEventListener('change',()=>fillRooms(apCode()));
 fillRooms(DATA.resorts[0].code);
 document.getElementById('readFirst').addEventListener('click',()=>{ activateTab('guide'); window.scrollTo({top:0,behavior:'smooth'}); });
