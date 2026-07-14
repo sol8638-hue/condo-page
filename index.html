@@ -878,8 +878,8 @@ document.getElementById('readFirst').addEventListener('click',()=>{ activateTab(
 function applyPrefill(code, ds){
   activateTab('apply');
   for(const o of apResort.options){ if(o.dataset.code===code){ apResort.value=o.value; break; } }
-  fillRooms(code);
   if(ds){ document.getElementById('ap-checkin').value=ds.slice(0,4)+'-'+ds.slice(4,6)+'-'+ds.slice(6,8); }
+  fillRooms(code); // 날짜를 먼저 세팅한 뒤 채워야 객실별 예약가능 여부가 표시됨
   document.getElementById('apply-view').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
