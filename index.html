@@ -750,7 +750,7 @@ function openDetail(code,ds){
     '<p class="md-roomhint">💡 <b>📷 객실명을 누르면</b> 그 객실 사진을 <b>‹ ›</b>로 넘겨볼 수 있어요.</p>'+
     '<a class="md-hanwha" href="'+roomUrl+'" target="_blank" rel="noopener">🔗 한화리조트 홈페이지에서 객실 사진·상세 보기</a>'+
     '<button class="md-apply" id="md-apply">📝 이 날짜로 예약 신청</button>'+
-    '<p class="foot" style="padding:12px 22px">※ <b>'예약가능'이어도 회원권 숙박 이용횟수(구좌) 소진 시 실제 예약이 제한될 수 있습니다.</b> 최종 예약 여부는 신청 후 담당자가 확인해 안내드립니다.<br>※ 실수는 1회 예약 시 신청 가능한 최대 수량(사이트 기준 최대 9실)입니다. 조식은 콘도 예약과 별도로 리조트에 직접 예약·결제합니다.</p>';
+    '<p class="foot" style="padding:12px 22px">※ <b>「예약가능」이어도 회원권 숙박 이용횟수(구좌) 소진 시 실제 예약이 제한될 수 있습니다.</b> 최종 예약 여부는 신청 후 담당자가 확인해 안내드립니다.<br>※ 실수는 1회 예약 시 신청 가능한 최대 수량(사이트 기준 최대 9실)입니다. 조식은 콘도 예약과 별도로 리조트에 직접 예약·결제합니다.</p>';
   document.getElementById('modal').classList.add('open'); wireHead();
   var _ab=document.getElementById('md-apply'); if(_ab) _ab.addEventListener('click',function(){ closeDetail(); applyPrefill(code, ds); });
   document.querySelectorAll('#modalCard .r-nmbtn').forEach(function(btn){
