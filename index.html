@@ -842,24 +842,41 @@ function toggleUpg(){ const el=document.getElementById('upgradeNotice'); if(el) 
 function fillRooms(code){
   const prev=apRoom.value; // 날짜 변경 등으로 다시 채울 때 선택 유지
   const ds=(document.getElementById('ap-checkin').value||'').replace(/-/g,'');
-  const info=ds?((DATA.byResort[code]||{}).dates||{})[ds]:null;
-  const availMap={}; if(info) info.rooms.forEach(x=>{ availMap[x.nm]={p:x.possible==='Y', c:Math.min(Number(x.count),9)}; });
+  const nSel=document.querySelector('#applyForm [name=nights]');
+  const nights=nSel?(parseInt(nSel.value)||1):1;
+  // 숙박 각 밤의 날짜(체크인 ~ 체크인+박수-1)
+  let nightDates=[]; const haveDate=/^\d{8}$/.test(ds);
+  if(haveDate){ const base=new Date(+ds.slice(0,4),+ds.slice(4,6)-1,+ds.slice(6,8));
+    for(let i=0;i<nights;i++){ const d=new Date(base); d.setDate(base.getDate()+i); nightDates.push(''+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')); } }
+  // 객실별: 모든 밤이 가능해야 '예약가능', 하나라도 마감이면 '(일부) 마감'
+  function roomStatus(nm){
+    if(!haveDate) return '';
+    let anyMissing=false, allOk=true, minCount=99;
+    for(const nd of nightDates){
+      const info=((DATA.byResort[code]||{}).dates||{})[nd];
+      if(!info){ anyMissing=true; continue; }
+      const rm=info.rooms.find(x=>x.nm===nm);
+      if(!rm || rm.possible!=='Y') allOk=false;
+      else minCount=Math.min(minCount, Math.min(Number(rm.count),9));
+    }
+    if(anyMissing) return '  · 확인 필요';
+    if(allOk) return '  · 예약가능'+(minCount>0&&minCount<99?'('+minCount+'실)':'');
+    return nights>1 ? '  · 일부 날짜 마감' : '  · 마감';
+  }
   apRoom.innerHTML='<option value="상관없음">상관없음</option>';
   (DATA.rooms[code]||[]).forEach(rm=>{
     const o=document.createElement('option'); o.value=rm.nm;
-    let label=rm.nm+(rm.prsn?' ('+rm.prsn+'인)':'');
-    if(info){ const a=availMap[rm.nm];
-      label += (a&&a.p) ? ('  · 예약가능'+(a.c>0?'('+a.c+'실)':'')) : '  · 마감';
-    }
-    o.textContent=label; apRoom.appendChild(o);
+    o.textContent=rm.nm+(rm.prsn?' ('+rm.prsn+'인)':'')+roomStatus(rm.nm);
+    apRoom.appendChild(o);
   });
   // 이전 선택 복원
   if(prev){ for(const op of apRoom.options){ if(op.value===prev){ apRoom.value=prev; break; } } }
   const hint=document.getElementById('ap-room-hint');
-  if(hint) hint.textContent = info ? '※ 선택한 날짜·지점 기준 예약가능 여부입니다.' : (ds ? '※ 해당 날짜 수집 정보가 없어 예약가능 여부는 표시되지 않습니다.' : '※ 체크인 날짜를 선택하면 객실별 예약가능 여부가 표시됩니다.');
+  if(hint) hint.textContent = haveDate ? ('※ 체크인부터 '+nights+'박 전체 기준입니다. 마감 밤이 하나라도 있으면 '+(nights>1?'「일부 날짜 마감」':'「마감」')+'으로 표시됩니다.') : '※ 체크인 날짜를 선택하면 객실별 예약가능 여부가 표시됩니다.';
   toggleUpg();
 }
 function apCode(){ const o=apResort.selectedOptions[0]; return o?o.dataset.code:DATA.resorts[0].code; }
+(function(){ var n=document.querySelector('#applyForm [name=nights]'); if(n) n.addEventListener('change',()=>fillRooms(apCode())); })();
 // 업그레이드 객실은 대기예약 불가 — 체크 시(또는 업그레이드 객실 선택 시) 해제 + 안내
 function wlUpgradeGuard(fromCheck){
   const cb=document.getElementById('ap-waitlist');
