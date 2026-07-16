@@ -545,6 +545,7 @@
           </ol>
           <p class="pp-warn">⚠️ 결제 알림톡 수신 후 <b>바로 결제하지 않으면 결제창이 만료</b>됩니다. 알림톡을 받으면 <b>즉시 결제</b>해 주세요.</p>
         </div>
+        <label id="ap-birth-field" style="display:none">결제자 생년월일 앞 6자리 <span class="req">*</span><input name="birth" id="ap-birth" inputmode="numeric" maxlength="6" placeholder="예: 900101 (YYMMDD)"><span class="ap-hint">※ 선결제 콘도 결제 알림톡 발송에 사용됩니다.</span></label>
         <div id="ap-price" class="ap-price"></div>
         <button type="submit" class="apply-btn" id="ap-submit">신청 제출</button>
         <div class="apply-msg" id="ap-msg"></div>
@@ -977,7 +978,9 @@ function wlUpgradeGuard(fromCheck){
 function updateApplyPrice(){
   const box=document.getElementById('ap-price'); if(!box) return;
   const code=apCode(), nm=apRoom.value;
-  const pp=document.getElementById('ap-prepay'); if(pp) pp.style.display=isPrepay(code)?'':'none';
+  const pre=isPrepay(code);
+  const pp=document.getElementById('ap-prepay'); if(pp) pp.style.display=pre?'':'none';
+  const bf=document.getElementById('ap-birth-field'); if(bf) bf.style.display=pre?'':'none';
   const ds=(document.getElementById('ap-checkin').value||'').replace(/-/g,'');
   const nSel=document.querySelector('#applyForm [name=nights]'); const nights=nSel?(parseInt(nSel.value)||1):1;
   if(!nm||nm==='상관없음'){ box.className='ap-price'; box.innerHTML='<span class="app-note">객실 타입을 선택하면 예상 요금이 표시됩니다.</span>'; return; }
@@ -1011,9 +1014,14 @@ document.getElementById('applyForm').addEventListener('submit',(e)=>{
   const fd=new FormData(e.target); const ref=genRef();
   const wl=fd.get('waitlist')?'[대기예약 희망] ':'';
   const tc=fd.get('typechg')?'[연박 타입변경 허용] ':'';
+  // 선결제 콘도: 결제자 생년월일 앞 6자리 필수
+  const isPre=isPrepay(apCode());
+  const birth=(fd.get('birth')||'').replace(/\D/g,'');
+  if(isPre && birth.length!==6){ msg.className='apply-msg err'; msg.textContent='선결제 콘도는 결제 알림톡을 위해 결제자 생년월일 앞 6자리(YYMMDD)를 입력해주세요.'; return; }
+  const bt=(isPre && birth)?'[생년월일 '+birth+'] ':'';
   const obj={ status:'접수', resort:fd.get('resort'), checkin:fd.get('checkin'), nights:fd.get('nights'),
     room_type:fd.get('roomType'), pax:fd.get('persons'), applicant:fd.get('name'), dept:fd.get('dept'),
-    phone:fd.get('phone'), empno:fd.get('empno'), note:(wl+tc+(fd.get('note')||'')).trim(), ref_no:ref };
+    phone:fd.get('phone'), empno:fd.get('empno'), note:(wl+tc+bt+(fd.get('note')||'')).trim(), ref_no:ref };
   btn.disabled=true; msg.className='apply-msg'; msg.textContent='제출 중…';
   const done=()=>{
     e.target.reset(); fillRooms(DATA.resorts[0].code); toggleUpg(); btn.disabled=false;
