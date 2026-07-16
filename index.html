@@ -1398,12 +1398,25 @@ function buildStatusMail(r){
   } else {
     L.push('· 객실: '+(r.confirmed_room||r.room_type||'-'));
   }
+  // 예상 요금(밤별 시즌요금 합산)
+  const _code=resortCodeOf(r.resort);
+  const _nm=(r.confirmed_room&&r.confirmed_room.trim())||r.room_type;
+  const _cd=_code?roomCdOf(_code,_nm):null;
+  const _ci=(cfHas(r)&&toYMD(r.confirmed_checkin))||r.checkin;
+  const _est=_cd?estimateStay(_code,_cd,_ci,r.nights):null;
+  if(_est && _est.priced>0) L.push('· 예상 요금: '+won(_est.total)+' ('+_est.nights+'박'+(_est.missing?' 중 '+_est.priced+'박':'')+' · 조식·추가인원 별도)');
   L.push('· 현재 상태: '+(r.status||'-'));
   if(STATUS_MSG[r.status]) L.push('  '+STATUS_MSG[r.status]);
   if(r.wait_no) L.push('· 대기번호: '+r.wait_no);
   if(r.booking_no) L.push('· 예약번호: '+r.booking_no);
   if(r.reject_reason) L.push('· 반려사유: '+r.reject_reason);
   if(r.admin_memo) L.push('· 안내사항: '+r.admin_memo);
+  if(r.status==='예약완료' || r.booking_no){
+    L.push('');
+    L.push('[이용 안내]');
+    L.push('· 체크인 시, 예약 안내메일 및 알림톡에 기재된 예약번호로 이용해 주세요.');
+    L.push('· 부득이하게 취소하실 경우, 반드시 이용일 10일 전까지 인사담당자(2410003@okfngroup.com)에게 취소 요청해 주세요. (이용일 10일 이내 취소는 제한될 수 있습니다.)');
+  }
   L.push('');
   L.push('※ 본 메일은 발신전용으로 회신(답장)을 받지 않습니다.');
   L.push('   문의사항은 OK저축은행 인사팀 김예솔 책임(2410003@okfngroup.com)으로 연락 주시기 바랍니다.');
