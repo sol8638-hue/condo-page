@@ -356,6 +356,16 @@
   .apply-form .frow{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
   .apply-form label{display:block;font-size:13px;font-weight:700;color:var(--ink2);line-height:1.5;}
   .ap-hint{display:block;font-size:11.5px;font-weight:600;color:var(--ink3);margin-top:5px;}
+  .ap-price .app-note{color:var(--ink3);font-weight:600;font-size:12.5px;}
+  .ap-price.on{background:var(--brand-50);border:1px solid var(--brand-100);border-radius:12px;padding:13px 16px;}
+  .app-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
+  .app-lab{font-size:14px;font-weight:800;color:var(--brown);}
+  .app-sub{font-size:12px;font-weight:600;color:var(--ink2);}
+  .app-total{font-size:21px;font-weight:800;color:var(--brand-600);white-space:nowrap;}
+  .app-foot{margin-top:6px;font-size:11.5px;color:var(--ink3);line-height:1.5;}
+  .tk-price{margin-top:10px;font-size:14px;font-weight:700;color:var(--brown);}
+  .tk-price b{color:var(--brand-600);font-size:16px;}
+  .tk-price-sub{font-size:11.5px;font-weight:600;color:var(--ink3);}
   .wl-sub{font-size:11.5px;font-weight:600;color:var(--ink3);}
   .opt-cap{display:block;font-size:13px;font-weight:700;color:var(--ink2);line-height:1.5;}
   .apply-form .wl-check{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer;background:#fff;border:1px solid var(--line2);border-radius:12px;padding:11px 14px;margin-top:7px;}
@@ -520,6 +530,7 @@
           </div>
         </div>
         <label>대안 일정 / 비고 <textarea name="note" rows="2" placeholder="예: 6/20~21 마감이면 6/27~28도 가능 / 오션뷰 희망 등"></textarea></label>
+        <div id="ap-price" class="ap-price"></div>
         <button type="submit" class="apply-btn" id="ap-submit">신청 제출</button>
         <div class="apply-msg" id="ap-msg"></div>
       </form>
@@ -749,6 +760,24 @@ function priceFor(code,cd,season){
   for(const s in row){ if(parseSeason(s).label===want) return row[s]; }
   return null;
 }
+// 객실명 → 객실코드
+function roomCdOf(code,nm){ const r=(DATA.rooms[code]||[]).find(x=>x.nm===nm); return r?r.cd:null; }
+// 지점명 → 지점코드
+function resortCodeOf(nm){ const r=DATA.resorts.find(x=>x.name===nm); return r?r.code:null; }
+// 체크인~박수 동안 밤별 시즌요금 합산. {total, nights, missing, priced}
+function estimateStay(code, cd, checkinDs, nights){
+  checkinDs=String(checkinDs||'').replace(/-/g,''); nights=parseInt(nights)||1;
+  if(!code||!cd||!/^\d{8}$/.test(checkinDs)) return null;
+  const base=new Date(+checkinDs.slice(0,4),+checkinDs.slice(4,6)-1,+checkinDs.slice(6,8));
+  let total=0, missing=false, priced=0;
+  for(let i=0;i<nights;i++){ const d=new Date(base); d.setDate(base.getDate()+i);
+    const ds2=''+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+    const info=((DATA.byResort[code]||{}).dates||{})[ds2];
+    const p=info&&info.season?priceFor(code,cd,info.season):null;
+    if(p==null) missing=true; else { total+=p; priced++; }
+  }
+  return {total, nights, missing, priced};
+}
 function openDetail(code,ds){
   const info=(DATA.byResort[code]||{}).dates[ds];
   const y=ds.slice(0,4),mo=+ds.slice(4,6),da=+ds.slice(6,8);
@@ -914,6 +943,7 @@ function fillRooms(code){
   const hint=document.getElementById('ap-room-hint');
   if(hint) hint.textContent = haveDate ? ('※ 체크인부터 '+nights+'박 전체 기준입니다. 마감 밤이 하나라도 있으면 '+(nights>1?'「일부 날짜 마감」으로 표시돼요. 이 경우 아래 「연박 시 객실 타입 변경 허용」에 체크하면 밤마다 다른 타입으로 이어 예약될 수 있습니다.':'「마감」으로 표시됩니다.')) : '※ 체크인 날짜를 선택하면 객실별 예약가능 여부가 표시됩니다.';
   toggleUpg();
+  if(typeof updateApplyPrice==='function') updateApplyPrice();
 }
 function apCode(){ const o=apResort.selectedOptions[0]; return o?o.dataset.code:DATA.resorts[0].code; }
 (function(){ var n=document.querySelector('#applyForm [name=nights]'); if(n) n.addEventListener('change',()=>fillRooms(apCode())); })();
@@ -925,8 +955,22 @@ function wlUpgradeGuard(fromCheck){
     alert('업그레이드 객실(스위트·프리미엄·로얄 등)은 대기예약이 불가합니다.\n대기예약은 디럭스 객실에 한해 신청할 수 있습니다.');
   }
 }
+// 예상 요금 계산·표시
+function updateApplyPrice(){
+  const box=document.getElementById('ap-price'); if(!box) return;
+  const code=apCode(), nm=apRoom.value;
+  const ds=(document.getElementById('ap-checkin').value||'').replace(/-/g,'');
+  const nSel=document.querySelector('#applyForm [name=nights]'); const nights=nSel?(parseInt(nSel.value)||1):1;
+  if(!nm||nm==='상관없음'){ box.className='ap-price'; box.innerHTML='<span class="app-note">객실 타입을 선택하면 예상 요금이 표시됩니다.</span>'; return; }
+  if(!/^\d{8}$/.test(ds)){ box.className='ap-price'; box.innerHTML='<span class="app-note">체크인 날짜를 선택하면 예상 요금이 표시됩니다.</span>'; return; }
+  const cd=roomCdOf(code,nm); const est=cd?estimateStay(code,cd,ds,nights):null;
+  if(!est||est.priced===0){ box.className='ap-price'; box.innerHTML='<span class="app-note">이 조건은 요금 정보가 없어 예상 요금을 표시할 수 없습니다.</span>'; return; }
+  box.className='ap-price on';
+  box.innerHTML='<div class="app-row"><span class="app-lab">예상 요금 <span class="app-sub">'+nights+'박 · '+esc(nm)+'</span></span><span class="app-total">'+won(est.total)+'</span></div>'+
+    '<div class="app-foot">'+(est.missing?'※ 일부 날짜는 요금 정보가 없어 '+est.priced+'박만 합산했습니다. ':'')+'법인회원(현지불) 기준 1박 객실료 합산 · <b>조식·추가인원 별도</b> · 실제 요금은 예약 시 확정</div>';
+}
 apResort.addEventListener('change',()=>fillRooms(apCode()));
-apRoom.addEventListener('change',()=>{ toggleUpg(); wlUpgradeGuard(); });
+apRoom.addEventListener('change',()=>{ toggleUpg(); wlUpgradeGuard(); updateApplyPrice(); });
 (function(){ var cb=document.getElementById('ap-waitlist'); if(cb) cb.addEventListener('change',()=>wlUpgradeGuard(true)); })();
 document.getElementById('ap-checkin').addEventListener('change',()=>fillRooms(apCode()));
 fillRooms(DATA.resorts[0].code);
@@ -982,6 +1026,17 @@ function tkCancelBtn(r){
   if(r.status==='반려') return '';
   return '<div class="tk-cbar"><button class="tk-cancel" data-id="'+r.id+'">신청 취소 요청</button></div>';
 }
+// 조회 카드용 예상 요금
+function trackPriceHtml(r){
+  const code=resortCodeOf(r.resort); if(!code) return '';
+  const nm=(r.confirmed_room&&r.confirmed_room.trim())||r.room_type;
+  if(!nm||nm==='상관없음') return '';
+  const cd=roomCdOf(code,nm); if(!cd) return '';
+  const ci=(cfHas(r)&&toYMD(r.confirmed_checkin))||r.checkin;
+  const est=estimateStay(code,cd,ci,r.nights);
+  if(!est||est.priced===0) return '';
+  return '<div class="tk-price">예상 요금 <b>'+won(est.total)+'</b> <span class="tk-price-sub">('+est.nights+'박'+(est.missing?' 중 '+est.priced+'박':'')+' · 조식·추가인원 별도 · 예약 시 확정)</span></div>';
+}
 function loadTrack(){
   const box=document.getElementById('tk-result');
   box.innerHTML='<div class="tk-card">조회 중…</div>';
@@ -989,6 +1044,7 @@ function loadTrack(){
     if(!Array.isArray(rows)||!rows.length){ box.innerHTML='<div class="tk-card err">일치하는 신청이 없습니다. 사번·휴대폰 뒷 4자리를 확인해주세요.</div>'; return; }
     box.innerHTML=rows.map(r=>'<div class="tk-card"><div class="tk-status" style="color:'+statusColor(r.status)+'">'+esc(r.status)+'</div>'+
       '<div class="tk-meta">'+esc(r.applicant)+'님 · '+esc(r.resort)+' · '+(cfHas(r)?fmtD(r.checkin)+' → <b>변경 '+cfRange(r)+'</b>':fmtD(r.checkin))+' · '+esc(r.nights)+' · '+esc(r.room_type||'-')+(r.confirmed_room&&r.confirmed_room!==r.room_type?' → <b>확정 '+esc(r.confirmed_room)+'</b>':'')+' · '+esc(r.pax)+'인</div>'+
+      trackPriceHtml(r)+
       (r.wait_no?'<div class="tk-wait">대기번호 <b>'+esc(r.wait_no)+'</b></div>':'')+
       (r.booking_no?'<div class="tk-wait">예약번호 <b>'+esc(r.booking_no)+'</b></div>':'')+
       (r.admin_memo?'<div class="tk-memo"><b>관리자 비고</b> '+esc(r.admin_memo)+'</div>':'')+
