@@ -540,12 +540,12 @@
           <div class="pp-h">💳 선결제 콘도 안내</div>
           <p class="pp-lead">이 지점은 <b>선결제 콘도</b>입니다. 아래 절차로 예약이 확정됩니다.</p>
           <ol class="pp-steps">
-            <li>인사담당자가 예약 시 <b>결제자 휴대폰번호·생년월일 앞자리</b>를 입력하면 <b>결제 알림톡</b>이 발송됩니다.</li>
+            <li>인사담당자가 예약 시 <b>결제자 휴대폰번호·생년월일</b>을 입력하면 <b>결제 알림톡</b>이 발송됩니다.</li>
             <li>결제 완료 후 담당자가 예약 사이트에서 <b>「결제 확인」</b>을 클릭하면 예약이 완료됩니다.</li>
           </ol>
           <p class="pp-warn">⚠️ 결제 알림톡 수신 후 <b>바로 결제하지 않으면 결제창이 만료</b>됩니다. 알림톡을 받으면 <b>즉시 결제</b>해 주세요.</p>
         </div>
-        <label id="ap-birth-field" style="display:none">결제자 생년월일 앞 6자리 <span class="req">*</span><input name="birth" id="ap-birth" inputmode="numeric" maxlength="6" placeholder="예: 900101 (YYMMDD)"><span class="ap-hint">※ 선결제 콘도 결제 알림톡 발송에 사용됩니다.</span></label>
+        <label id="ap-birth-field" style="display:none">결제자 생년월일 <span class="req">*</span><input name="birth" id="ap-birth" inputmode="numeric" maxlength="6" placeholder="예: 900101 (YYMMDD 6자리)"><span class="ap-hint">※ 선결제 콘도 결제 알림톡 발송에 사용됩니다.</span></label>
         <div id="ap-price" class="ap-price"></div>
         <button type="submit" class="apply-btn" id="ap-submit">신청 제출</button>
         <div class="apply-msg" id="ap-msg"></div>
@@ -1017,7 +1017,7 @@ document.getElementById('applyForm').addEventListener('submit',(e)=>{
   // 선결제 콘도: 결제자 생년월일 앞 6자리 필수
   const isPre=isPrepay(apCode());
   const birth=(fd.get('birth')||'').replace(/\D/g,'');
-  if(isPre && birth.length!==6){ msg.className='apply-msg err'; msg.textContent='선결제 콘도는 결제 알림톡을 위해 결제자 생년월일 앞 6자리(YYMMDD)를 입력해주세요.'; return; }
+  if(isPre && birth.length!==6){ msg.className='apply-msg err'; msg.textContent='선결제 콘도는 결제 알림톡을 위해 결제자 생년월일(YYMMDD 6자리)을 입력해주세요.'; return; }
   const bt=(isPre && birth)?'[생년월일 '+birth+'] ':'';
   const obj={ status:'접수', resort:fd.get('resort'), checkin:fd.get('checkin'), nights:fd.get('nights'),
     room_type:fd.get('roomType'), pax:fd.get('persons'), applicant:fd.get('name'), dept:fd.get('dept'),
