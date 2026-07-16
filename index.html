@@ -356,6 +356,12 @@
   .apply-form .frow{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
   .apply-form label{display:block;font-size:13px;font-weight:700;color:var(--ink2);line-height:1.5;}
   .ap-hint{display:block;font-size:11.5px;font-weight:600;color:var(--ink3);margin-top:5px;}
+  .ap-prepay{background:#eef4fb;border:1px solid #cfe0f2;border-radius:12px;padding:14px 16px;margin-bottom:12px;}
+  .ap-prepay .pp-h{font-weight:800;color:#2f6ed0;font-size:14px;margin-bottom:6px;}
+  .ap-prepay .pp-lead{font-size:13px;color:var(--ink);margin:0 0 8px;}
+  .ap-prepay .pp-steps{margin:0 0 10px;padding-left:20px;font-size:13px;color:var(--ink);line-height:1.6;}
+  .ap-prepay .pp-steps li{margin:3px 0;}
+  .ap-prepay .pp-warn{margin:0;font-size:12.5px;color:#c0392b;font-weight:600;line-height:1.55;background:#fdecea;border-radius:9px;padding:9px 12px;}
   .ap-price .app-note{color:var(--ink3);font-weight:600;font-size:12.5px;}
   .ap-price.on{background:var(--brand-50);border:1px solid var(--brand-100);border-radius:12px;padding:13px 16px;}
   .app-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
@@ -530,6 +536,15 @@
           </div>
         </div>
         <label>대안 일정 / 비고 <textarea name="note" rows="2" placeholder="예: 6/20~21 마감이면 6/27~28도 가능 / 오션뷰 희망 등"></textarea></label>
+        <div id="ap-prepay" class="ap-prepay" style="display:none">
+          <div class="pp-h">💳 선결제 콘도 안내</div>
+          <p class="pp-lead">이 지점은 <b>선결제 콘도</b>입니다. 아래 절차로 예약이 확정됩니다.</p>
+          <ol class="pp-steps">
+            <li>인사담당자가 예약 시 <b>결제자 휴대폰번호·생년월일 앞자리</b>를 입력하면 <b>결제 알림톡</b>이 발송됩니다.</li>
+            <li>결제 완료 후 담당자가 예약 사이트에서 <b>「결제 확인」</b>을 클릭하면 예약이 완료됩니다.</li>
+          </ol>
+          <p class="pp-warn">⚠️ 결제 알림톡 수신 후 <b>바로 결제하지 않으면 결제창이 만료</b>됩니다. 알림톡을 받으면 <b>즉시 결제</b>해 주세요.</p>
+        </div>
         <div id="ap-price" class="ap-price"></div>
         <button type="submit" class="apply-btn" id="ap-submit">신청 제출</button>
         <div class="apply-msg" id="ap-msg"></div>
@@ -962,6 +977,7 @@ function wlUpgradeGuard(fromCheck){
 function updateApplyPrice(){
   const box=document.getElementById('ap-price'); if(!box) return;
   const code=apCode(), nm=apRoom.value;
+  const pp=document.getElementById('ap-prepay'); if(pp) pp.style.display=isPrepay(code)?'':'none';
   const ds=(document.getElementById('ap-checkin').value||'').replace(/-/g,'');
   const nSel=document.querySelector('#applyForm [name=nights]'); const nights=nSel?(parseInt(nSel.value)||1):1;
   if(!nm||nm==='상관없음'){ box.className='ap-price'; box.innerHTML='<span class="app-note">객실 타입을 선택하면 예상 요금이 표시됩니다.</span>'; return; }
